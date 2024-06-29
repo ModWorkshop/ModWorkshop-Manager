@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:MWSManager.ViewModels"
+			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+			 mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="200"
+			 x:DataType="vm:ModViewModel"
+			 x:Class="MWSManager.Views.ModView">
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock.ModInfo">
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Width" Value="400"/>
+			<Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+		</Style>
+	</UserControl.Styles>
+	
+		<StackPanel Spacing="8" Orientation="Horizontal">
+
+			<!--asyncImageLoader:AdvancedImage
+				Width="150"
+				Height="75"
+				Stretch="UniformToFill"
+				Source="{Binding Mod.Thumbnail}"
+			/-->
+			<StackPanel Spacing="8">
+				<TextBlock Classes="ModInfo" Text="{Binding Mod.Name}"/>
+				<TextBlock Classes="ModInfo" IsVisible="{Binding Mod.Owner, Converter={x:Static ObjectConverters.IsNotNull}}">
+					By: <TextBlock Text="{Binding Mod.Owner}"/>
+				</TextBlock>
+				<TextBlock Classes="ModInfo" Margin="0 20 0 0" IsVisible="{Binding Mod.Version, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+					<TextBlock Text="{Binding Mod.Version}"/>
+				</TextBlock>
+			</StackPanel>
+		</StackPanel>
+</UserControl>

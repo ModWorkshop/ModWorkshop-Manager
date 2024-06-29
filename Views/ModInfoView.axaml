@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:MWSManager.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="450"
+             x:Class="MWSManager.Views.ModInfoView"
+			 x:DataType="vm:ModInfoViewModel"
+			 >
+	<Panel>
+		<Border Padding="16" IsVisible="{Binding HasMod}">
+			<DockPanel>
+				<StackPanel DockPanel.Dock="Top">
+					<TextBlock>
+						Name: <TextBlock Text="{Binding Mod.Name}"/>
+					</TextBlock>
+				</StackPanel>
+
+				<StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Spacing="4">
+					<Button>Page on ModWorkshop</Button>
+					<Button>Update</Button>
+				</StackPanel>
+			</DockPanel>
+		</Border>
+		<Border Padding="16" IsVisible="{Binding !HasMod}">
+			<TextBlock HorizontalAlignment="Center" Text="No Mod Selected"/>
+		</Border>
+	</Panel>
+</UserControl>

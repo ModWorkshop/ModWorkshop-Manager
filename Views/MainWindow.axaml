@@ -1,0 +1,71 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MWSManager.ViewModels"
+        xmlns:views="using:MWSManager.Views"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"
+        x:Class="MWSManager.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/icon.ico"
+        Title="ModWorkshop Manager"
+		>
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+	<Window.Styles>
+		<Style Selector="ListBox.FluentList ListBoxItem">
+			<Setter Property="Padding" Value="16"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Background" Value="{DynamicResource ButtonBackground}"/>
+		</Style>
+
+		<Style Selector="ListBox.ThumbList ListBoxItem">
+			<Setter Property="Height" Value="72"/>
+		</Style>
+	</Window.Styles>
+
+	<StackPanel Orientation="Horizontal">
+		<Panel Background="{DynamicResource ButtonBackground}">
+			<ListBox ItemsSource="{Binding Games}"  SelectedItem="{Binding CurrentGame}" Classes="ThumbList">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Border ClipToBounds="True" CornerRadius="10">
+							<Image
+								Width="48"
+								Height="48"
+								Classes="GameButton"
+								Stretch="UniformToFill"
+								asyncImageLoader:ImageLoader.Source="{Binding Thumbnail}"
+							/>
+						</Border>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+
+			<ListBox ItemsSource="{Binding OtherPages}" SelectedItem="{Binding CurrentOtherPage}" Classes="ThumbList" VerticalAlignment="Bottom">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Border ClipToBounds="True" CornerRadius="10">
+							<Image
+								Width="48"
+								Height="48"
+								Classes="GameButton"
+								Stretch="UniformToFill"
+								asyncImageLoader:ImageLoader.Source="{Binding Thumbnail}"
+							/>
+						</Border>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</Panel>
+		<TransitioningContentControl Content="{Binding CurrentPage}"/>
+	</StackPanel>
+
+
+</Window>

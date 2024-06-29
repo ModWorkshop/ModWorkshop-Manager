@@ -1,0 +1,34 @@
+﻿{
+  "payday2": {
+    "SteamId": 218620,
+    "MWSId": 10,
+    "EpicId": "384f75fdd6b34f63a2daace1a3c5dab0",
+    "ClassName": "Diesel.PD2Game",
+    "Icon": "avares://MWSManager/Assets/games/pd2-icon.png",
+    "ModDirs": [
+      "mods",
+      "Maps",
+      "assets/mod_overrides"
+    ]
+  },
+
+  "payday3": {
+    "ExtraData": {
+      "UnrealName": "PAYDAY3"
+    },
+    "SteamId": 1272080,
+    "MWSId": 853,
+    "Icon": "avares://MWSManager/Assets/games/pd3-icon.png",
+    "ClassName": "UE4Game"
+  },
+
+  "crimeboss": {
+    "ExtraData": {
+      "UnrealName": "CrimeBoss"
+    },
+    "SteamId": 2933080,
+    "MWSId": 1,
+    "Icon": "avares://MWSManager/Assets/games/cb-icon.png",
+    "ClassName": "UE4Game"
+  }
+}

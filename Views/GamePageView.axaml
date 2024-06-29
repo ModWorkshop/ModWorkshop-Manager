@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:MWSManager.ViewModels"
+			 xmlns:views="using:MWSManager.Views"
+			 mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="200"
+			 x:DataType="vm:GamePageViewModel"
+			 x:Class="MWSManager.Views.GamePageView">
+	
+	<StackPanel Orientation="Horizontal">
+		<Panel Width="500">
+			<TextBlock IsVisible="{Binding !HasMods}"  HorizontalAlignment="Center" VerticalAlignment="Center">No mods found!</TextBlock>
+			<ListBox
+				Classes="FluentList"
+				IsVisible="{Binding HasMods}"
+				ItemsSource="{Binding Mods}"
+				SelectedItem="{Binding SelectedMod}"
+			/>
+		</Panel>
+		<views:ModInfoView DataContext="{Binding ModInfo}"/>
+	</StackPanel>
+</UserControl>

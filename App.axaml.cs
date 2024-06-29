@@ -44,7 +44,7 @@ public partial class App : Application
 
         Log.Information("Loading App");
 
-        var service = URISchemeServiceFactory.GetURISchemeSerivce("MWSManager-mm", "URL:MWSManager Protcol", Process.GetCurrentProcess().MainModule.FileName);
+        var service = URISchemeServiceFactory.GetURISchemeSerivce("mws-manager", "URI Scheme for the MWS Manager", Process.GetCurrentProcess().MainModule.FileName);
         if (service.CheckAny())
         {
             service.Delete();
@@ -81,7 +81,7 @@ public partial class App : Application
     public void OnMessage(string message)
     {
         if (message != null) {
-            var match = Regex.Match(message, @"MWSManager-mm://mws/install/(\d+)");
+            var match = Regex.Match(message, @"mws-manager://mws/install/(\d+)");
             if (match.Groups[1].Value != null)
             {
                 Dispatcher.UIThread.Post(() =>

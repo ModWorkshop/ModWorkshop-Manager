@@ -30,7 +30,7 @@ public partial class DownloadsPageViewModel : PageViewModel
 
         if (Window != null)
         {
-            Window.CurrentPage = Window.Downloads;
+            Window.CurrentOtherPage = Window.Downloads;
         }
 
         return down;

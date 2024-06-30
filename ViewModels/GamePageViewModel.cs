@@ -62,8 +62,8 @@ public partial class GamePageViewModel : PageViewModel
         ModInfo.Mod = value?.Mod ?? null;
     }
 
-    public void TryInstallMod(FileData fileData)
+    public void TryInstallMod(ModInstall install)
     {
-        Game.TryInstallMod(fileData);
+        Game.TryInstallMod(install);
     }
 }

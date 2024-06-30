@@ -183,14 +183,14 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     // 
-    public async Task TryInstallMod(int gameId, FileData fileData)
+    public async Task TryInstallMod(int gameId, ModInstall install)
     {
         await Task.Run(() =>
         {
             foreach(var gameVm in Games) {
                 if (gameVm.Game.MWSId == gameId)
                 {
-                    gameVm.TryInstallMod(fileData);
+                    gameVm.TryInstallMod(install);
                 }
             }
         });

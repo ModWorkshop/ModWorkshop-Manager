@@ -19,22 +19,6 @@ public enum InstallMethod {
     Unknown // If you determine that the format of the mod is just unknown or we aren't sure where to place it.
 }
 
-public class FileData
-{
-    static List<string> KnownArchiveTypes = ["zip", "7z", "rar", "gz", "tar", "xz", "gzip", "bzip2"];
-
-    // The file name
-    public required string Name { get; set; }
-    
-    // The type (extension) of the file
-    public required string Type { get; set; }
-
-    // The stream of the file as it gets downloaded
-    public Stream? Stream { get; set; }
-
-    public bool IsArchive => KnownArchiveTypes.Contains(Type);
-}
-
 public class Game
 {
     #region Properties
@@ -128,61 +112,18 @@ public class Game
         
     }
 
-    public void TryInstallMod(FileData fileData)
+    public void TryInstallMod(ModInstall install)
     {
-        if (fileData.Type == "pdmod")
-        {
-            return; //unsupported!
-        }
-
-        if (fileData.Stream == null)
-        {
-            throw new Exception("The mod contains no stream to install from!");
-        }
-
-        var method = GetModInstallInstallMethod(fileData);
-
-        if (method == InstallMethod.Install)
-        {
-            InstallMod(fileData, fileData.Stream, GetModInstallPath(fileData, method));
-        } 
-        else if (method == InstallMethod.ExtractAndInstall)
-        {
-            ExtractAndInstallMod(fileData, fileData.Stream, GetModInstallPath(fileData, method));
-        }
-        else
-        {
-            // Not implemented
-        }
-        
+        InstallMod(install, GetModInstallPath(install));
     }
 
-    public virtual void ExtractAndInstallMod(FileData fileData, Stream strea, string installPath)
+    public virtual void InstallMod(ModInstall install, string installPath)
     {
-
+        install.MoveAll(Path.Combine(GamePath, installPath));
     }
 
-    public virtual void InstallMod(FileData fileData, Stream strea, string installPath)
-    {
-
-    }
-
-    // This method runs BEFORE trying to do anything with the file.
-    // If your game needs to do some setup with the file or it reads archive files directly,
-    // you should override this function in your game class.
-    public virtual InstallMethod GetModInstallInstallMethod(FileData fileData)
-    {
-        if (fileData.IsArchive)
-        {
-            return InstallMethod.ExtractAndInstall;
-        } else
-        {
-            return InstallMethod.Other;
-        }
-    }
-
-    // Returns where a mod should be installed. If your game contains multiple you must handle this yourself
-    protected virtual string GetModInstallPath(FileData fileData, InstallMethod method)
+    // Returns where a mod should be installed. If your game contains multiple places you must handle this yourself
+    protected virtual string GetModInstallPath(ModInstall install)
     {
         if (ModFileDirs.Count == 1)
         {

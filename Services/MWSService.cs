@@ -90,12 +90,7 @@ public class MWSService
 
             download.ShowProgressPercent = false;
             download.ProgressText = "Installing...";
-            await win.TryInstallMod(mod.game_id, new FileData
-            {
-                Name = fileData.file,
-                Type = fileData.file.Split(".").Last(),
-                Stream = memStream
-            });
+            await win.TryInstallMod(mod.game_id, new ModInstall(fileData.file, fileData.file.Split(".").Last(), memStream));
 
             download.ProgressText = "Done!";
 
@@ -103,7 +98,7 @@ public class MWSService
         }
         catch (Exception e)
         {
-            Log.Error("Failed installing mod file in TryInstallingFile {0}", e.Message);
+            Log.Error("Failed installing mod file in TryInstallingFile {0} {1}", e.Message, e.StackTrace);
         }
     }
 }

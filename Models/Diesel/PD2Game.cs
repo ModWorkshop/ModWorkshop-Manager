@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SharpCompress.Common;
 using SharpCompress.Readers;
 using SkiaSharp;
 using System;
@@ -132,66 +133,26 @@ namespace MWSManager.Models.Diesel
             }
         }
 
-        public override void ExtractAndInstallMod(FileData fileData, Stream stream, string installPath)
+        protected override string GetModInstallPath(ModInstall install)
         {
-            stream.Position = 0;
-
-            using var archiveReader = ReaderFactory.Open(stream);
-            archiveReader.WriteAllToDirectory(Path.Combine(GamePath, installPath), new SharpCompress.Common.ExtractionOptions
+            foreach(var filePath in install.Files)
             {
-                ExtractFullPath = true,
-                Overwrite = true
-            });
-        }
+                var fileName = Path.GetFileName(filePath);
 
-        protected override string GetModInstallPath(FileData fileData, InstallMethod method)
-        {
-            var archiveReader = ReaderFactory.Open(fileData.Stream);
-            bool isBLT = false;
-            //bool isBeardLib = false;
-            bool isBeardLibMap = false;
-
-            while (archiveReader.MoveToNextEntry())
-            {
-                var entry = archiveReader.Entry;
-                if (!entry.IsDirectory)
+                // BLT mods are automatically to be installed in mods folder!
+                if (fileName == "supermod.xml" || fileName == "mod.txt")
                 {
-                    var fileName = Path.GetFileName(entry.Key);
+                    return "mods";
+                }
 
-                    // BLT mods are automatically to be installed in mods folder!
-                    if (fileName == "supermod.xml" || fileName == "mod.txt")
-                    {
-                        isBLT = true;
-                        break;
-                    }
-
-                    //if (fileName == "add.xml" || fileName == "main.xml")
-                    //{
-                    //    isBeardLib = true;
-                    //}
-
-                    // Maps should be installed in Maps folder
-                    if (fileName == "add_local.xml")
-                    {
-                        //isBeardLib = true;
-                        isBeardLibMap = true;
-                        break;
-                    }
+                // Maps should be installed in Maps folder
+                if (fileName == "add_local.xml")
+                {
+                    return "Maps";
                 }
             }
 
-            if (isBeardLibMap)
-            {
-                return "Maps";
-            }
-            else if (isBLT)
-            {
-                return "mods";
-            }
-            else
-            {
-                return "assets/mod_overrides";
-            }
+            return "assets/mod_overrides";
         }
     }
 }

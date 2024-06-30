@@ -61,57 +61,28 @@ namespace MWSManager.Models
 
         }
 
-        public override void ExtractAndInstallMod(FileData fileData, Stream stream, string installPath)
+        protected override string GetModInstallPath(ModInstall install)
         {
-            stream.Position = 0;
+            //TODO: attempt to detect some common ways to install. Reject otherwise.
 
-            using var archiveReader = ReaderFactory.Open(stream);
-            archiveReader.WriteAllToDirectory(Path.Combine(GamePath, installPath), new SharpCompress.Common.ExtractionOptions
+            foreach (var filePath in install.Files)
             {
-                ExtractFullPath = true,
-                Overwrite = true
-            });
-        }
+                var fileName = Path.GetFileName(filePath);
+                var fileExt = Path.GetExtension(fileName);
 
-        protected override string GetModInstallPath(FileData fileData, InstallMethod method)
-        {
-            if (method == InstallMethod.Install)
-            {
-                
-            } 
-            else
-            {
-                Trace.WriteLine(fileData.Stream.CanRead);
-                var archiveReader = ReaderFactory.Open(fileData.Stream);
-            
-                //TODO: attempt to detect some common ways to install. Reject otherwise.
-
-                while (archiveReader.MoveToNextEntry())
+                // UE4SS mods always contain a main.lua or main.dll file
+                if (fileName == "main.lua" || fileName == "main.dll")
                 {
-                    var entry = archiveReader.Entry;
-                    if (!entry.IsDirectory)
+                    return $"{UnrealName}/Binaries/Win64/Mods";
+                }
+                else if (fileExt == ".utoc")
+                {
+                    // While this is not the smartest way, I believe it should more or less work.
+                    // I tried using CUE4Parse, but the docs are quite lacking,
+                    // It's possible also that some ucas/utoc isn't supported by it.
+                    if (File.ReadAllText(install.GetRealPath(filePath)).Contains("ModActor.uasset"))
                     {
-                        var fileName = Path.GetFileName(entry.Key);
-                        var fileExt = Path.GetExtension(fileName);
-
-                        // UE4SS mods always contain a main.lua or main.dll file
-                        if (fileName == "main.lua" || fileName == "main.dll")
-                        {
-                            return $"{UnrealName}/Binaries/Win64/Mods";
-                        } else if (fileExt == ".utoc")
-                        {
-                            // While this is not the smartest way, I believe it should more or less work.
-                            // I tried using CUE4Parse, but the docs are quite lacking,
-                            // It's possible also that some ucas/utoc isn't supported by it.
-                            var stream = archiveReader.OpenEntryStream();
-                            var reader = new StreamReader(stream);
-                            var st = reader.ReadToEnd();
-
-                            if (st.Contains("ModActor.uasset"))
-                            {
-                                return $"{UnrealName}/Content/Paks/LogicMods";
-                            }
-                        }
+                        return $"{UnrealName}/Content/Paks/LogicMods";
                     }
                 }
             }

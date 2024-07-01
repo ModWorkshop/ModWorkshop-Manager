@@ -46,7 +46,6 @@ public class ModInstall
         // It's possible we'll need to make special cases for some games. At the moment, I don't know any game that needs such things.
         if (KnownArchiveTypes.Contains(type))
         {
-            // Special case for 7z
             stream.Position = 0;
 
             var factory = ArchiveFactory.Open(stream);

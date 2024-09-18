@@ -12,6 +12,7 @@
   
     <Application.Styles>
 		<sty:FluentAvaloniaTheme />
+		<!--FluentTheme /-->
 		<StyleInclude Source="avares://AsyncImageLoader.Avalonia/AdvancedImage.axaml" />
     </Application.Styles>
 </Application>

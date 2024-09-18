@@ -21,6 +21,12 @@ using GameFinder.StoreHandlers.EGS;
 using MWSManager.Services;
 using System.Threading.Tasks;
 using Serilog;
+using System.Windows.Input;
+using ReactiveUI;
+using System.Linq;
+using MWSManager.Models.Providers;
+using ReactiveUI.SourceGenerators;
+using DynamicData.Binding;
 
 namespace MWSManager.ViewModels;
 
@@ -33,6 +39,8 @@ internal class GameDefinition
     public string? Icon;
     public string[]? ModDirs;
 
+    public Dictionary<string, string>? SpecialPaths;
+
     public dynamic? ExtraData;
 }
 
@@ -44,17 +52,21 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public DownloadsPageViewModel Downloads { get; }
 
-    [ObservableProperty]
+    [Reactive]
     private PageViewModel currentPage;
 
-    [ObservableProperty]
+    [Reactive]
     private GamePageViewModel? currentGame;
 
-    [ObservableProperty]
+    [Reactive]
     private PageViewModel? currentOtherPage;
 
     public MainWindowViewModel()
     {
+        var updates = UpdatesService.Instance;
+        updates.RegisterProvider(new ModWorkshop());
+        updates.RegisterProvider(new ModWorkshopFile());
+
         Downloads = new DownloadsPageViewModel() { 
             Window = this
         };
@@ -132,6 +144,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
                 if (gameObj != null)
                 {
+                    if (gameDef.SpecialPaths != null)
+                    {
+                        foreach (var pair in gameDef.SpecialPaths)
+                        {
+                            Log.Information("{0} = {1}", pair.Key, pair.Value);
+                            gameObj.AddSpecialPath(pair.Key, pair.Value);
+                        }
+                    }
                     gameObj.Thumbnail = gameDef.Icon;
                     gameObj.MWSId = gameDef.MWSId;
 
@@ -152,43 +172,49 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (Games.Count > 0)
         {
-            CurrentPage = Games[0];
+            CurrentGame = Games[0];
         }
+
+        updates.InitialCheckForUpdates();
+
+        this.WhenAnyValue(x => x.CurrentGame).Subscribe(x => OnCurrentGameChanged());
+        this.WhenAnyValue(x => x.CurrentPage).Subscribe(x => OnCurrentPageChanging());
+        this.WhenAnyValue(x => x.CurrentOtherPage).Subscribe(x => OnCurrentOtherPageChanged());
     }
 
-    partial void OnCurrentPageChanging(PageViewModel value)
+    public void OnCurrentPageChanging()
     {
-        if (value != null && value is GamePageViewModel)
+
+        if (CurrentPage != null)
         {
-            var game = (GamePageViewModel)value;
-            game.LoadMods();
+            CurrentPage.OnPageOpened();
         }
     }
 
-    partial void OnCurrentGameChanged(GamePageViewModel? value)
+    public void OnCurrentGameChanged()
     {
-        if (value != null)
+        if (CurrentGame != null)
         {
             CurrentOtherPage = null;
-            CurrentPage = value;
+            CurrentPage = CurrentGame;
         }
     }
-    partial void OnCurrentOtherPageChanged(PageViewModel? value)
+    public void OnCurrentOtherPageChanged()
     {
-        if (value != null)
+        if (CurrentOtherPage != null)
         {
             CurrentGame = null;
-            CurrentPage = value;
+            CurrentPage = CurrentOtherPage;
         }
     }
 
     // 
-    public async Task TryInstallMod(int gameId, ModInstall install)
+    public async Task TryInstallMod(Game game, ModInstall install)
     {
         await Task.Run(() =>
         {
             foreach(var gameVm in Games) {
-                if (gameVm.Game.MWSId == gameId)
+                if (gameVm.Game == game)
                 {
                     gameVm.TryInstallMod(install);
                 }

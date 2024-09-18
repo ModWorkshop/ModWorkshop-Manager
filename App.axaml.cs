@@ -81,14 +81,14 @@ public partial class App : Application
     public void OnMessage(string message)
     {
         if (message != null) {
-            var match = Regex.Match(message, @"mws-manager://mws/install/(\d+)");
-            if (match.Groups[1].Value != null)
+            var match = Regex.Match(message, @"mws-manager://([-_a-zA-Z0-9]+)/(\w+)/([-_a-zA-Z0-9]+)");
+            var provider = match.Groups[1];
+            var action = match.Groups[2];
+            var id = match.Groups[3];
+
+            if (provider != null && action != null && id != null)
             {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    MWSService.TryInstallingFile(Int32.Parse(match.Groups[1].Value));
-                });
-                
+                Dispatcher.UIThread.Post(() => UpdatesService.Instance.URISchemeHandle(provider.Value, action.Value, id.Value));
             }
         }
     }

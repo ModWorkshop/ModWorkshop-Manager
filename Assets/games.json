@@ -29,6 +29,12 @@
     "SteamId": 2933080,
     "MWSId": 1,
     "Icon": "avares://MWSManager/Assets/games/cb-icon.png",
-    "ClassName": "UE4Game"
+    "ClassName": "UE4Game",
+    "SpecialPaths": {
+      "UGC": "CrimeBoss/Mods"
+    },
+    "ModDIrs": [
+      "CrimeBoss/Mods"
+    ]
   }
 }

@@ -23,36 +23,31 @@ namespace MWSManager.Models
             ModDirs.Add($"{UnrealName}/Content/Paks/LogicMods");
         }
 
-        protected override void ProcessMod(Mod mod, string modDir)
+        protected override void ProcessMod(Mod mod)
         {
-            modDir = modDir.Replace($"{Name}/", "");
-            if (modDir.Contains("*"))
-            {
-                modDir = Path.GetDirectoryName(modDir);
-            }
+            var installDir = mod.InstallDir;
 
-            switch(modDir)
+            if (installDir == null)
+                return;
+
+            installDir = installDir.Replace($"{Name}/", "");
+            if (installDir.Contains("*"))
+                installDir = Path.GetDirectoryName(installDir);
+
+            switch (installDir)
             {
-                case "Content/Paks/~mods": 
-                {
+                case "Content/Paks/~mods":
                     ProcessPakMod(mod);
                     break;
-                }
                 case "Content/Paks/LogicMods":
-                {
                     ProcessPakMod(mod);
                     break;
-                }
                 case "Binaries/Win64/Mods":
-                {
                     ProcessPakMod(mod);
                     break;
-                }
                 default:
-                {
                     Trace.TraceError("Invalid mod directory");
                     break;
-                }
             };
         }
 
@@ -61,8 +56,12 @@ namespace MWSManager.Models
 
         }
 
-        protected override string GetModInstallPath(ModInstall install)
+        protected override string? GetModInstallPath(ModInstall install)
         {
+            var schemaDir = GetModSchemaInstallPath(install);
+            if (schemaDir != null)
+                return schemaDir;
+
             //TODO: attempt to detect some common ways to install. Reject otherwise.
 
             foreach (var filePath in install.Files)
@@ -87,7 +86,7 @@ namespace MWSManager.Models
                 }
             }
 
-            return "";
+            return null;
         }
     }
 }

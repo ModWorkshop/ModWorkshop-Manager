@@ -12,16 +12,9 @@ using System.Threading.Tasks;
 
 namespace MWSManager.Models;
 
-// Collectoin of mod files
 public class ModInstall
 {
     static List<string> KnownArchiveTypes = ["zip", "7z", "rar", "gz", "tar", "xz", "gzip", "bzip2"];
-
-    // The original file name
-    public string OrigName { get; set; }
-
-    // The original type (extension) of the file
-    public string OrigType { get; set; }
 
     // The path of the mod install, generally in some temporary path
     public string TempPath { get; init; }
@@ -29,13 +22,18 @@ public class ModInstall
     public List<string> Files = [];
     public List<string> Folders = [];
 
-    public ModInstall(string name, string type, Stream stream)
+    public ModUpdate Update { get; }
+
+    public bool SingleFile => Files.Count == 1 && Folders.Count == 0;
+
+    public ModInstall(ModUpdate update, string fileName, Stream stream)
     {
-        OrigName = name;
-        OrigType = type;
+        Update = update;
 
         var mwsTemp = Path.Combine(Path.GetTempPath(), "mws-manager");
-        TempPath = Path.Combine(mwsTemp, Path.GetFileNameWithoutExtension(name) + "_" +  Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
+        var type = Path.GetExtension(fileName).Replace(".", "");
+
+        TempPath = Path.Combine(mwsTemp, Path.GetFileNameWithoutExtension(fileName) + "_" +  Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
 
         if (!Directory.Exists(TempPath))
         {
@@ -54,13 +52,9 @@ public class ModInstall
                 if (entry.Key != null)
                 {
                     if (entry.IsDirectory)
-                    {
                         Folders.Add(entry.Key);
-                    }
                     else
-                    {
                         Files.Add(entry.Key);
-                    }
                 }
             }
 
@@ -73,35 +67,42 @@ public class ModInstall
             );
         } else
         {
-            using var tempFile = File.OpenWrite(Path.Combine(TempPath, name));
+            using var tempFile = File.OpenWrite(Path.Combine(TempPath, fileName));
             stream.CopyTo(tempFile);
-            Files.Add(name);
+            Files.Add(fileName);
         }
     }
 
-    // Moves all files into some directory
-    public void MoveAll(string dir)
+    // Moves file/folder into some directory
+    public void Move(string dir)
     {
-        Log.Information("Moving all files to {0}", dir);
-        foreach(var folder in Folders)
+        try
         {
-            Directory.CreateDirectory(Path.Combine(dir, folder));
-            Log.Information("Move {0} to {1}", GetRealPath(folder), Path.Combine(dir, folder));
-
-            Utils.CopyDirectory(GetRealPath(folder), Path.Combine(dir, folder));
-        }
-
-        foreach(var file in Files)
-        {
-            if (!file.Contains("/"))
+            if (SingleFile)
             {
-                //TODO: handle possibly warning the user about overwrite?
-                File.Copy(GetRealPath(file), Path.Combine(dir, file), true);
+                var file = GetRealPath(Files[0]);
+                Update.Mod.ModPath = Path.Combine(dir, Path.GetFileName(file));
+                Log.Information("Move File {0} -> {1}", file, Update.Mod.ModPath);
+                File.Copy(file, Update.Mod.ModPath);
+                Log.Information("Move Success");
             }
+            else
+            {
+                var folder = GetRealPath(Folders[0]);
+                Update.Mod.ModPath = Path.Combine(dir, Path.GetFileName(Path.GetDirectoryName(folder)));
+                Log.Information("Move {0} -> {1}", folder, Update.Mod.ModPath);
+                Utils.CopyDirectory(folder, Update.Mod.ModPath);
+                Log.Information("Move Success");
+            }
+
+            Log.Information("Cleaning folder from temp path");
+            Directory.Delete(TempPath, true);
+        }
+        catch (Exception e)
+        {
+            Log.Error("Couldn't move: {0}", e);
         }
 
-        Log.Information("Cleaning folder from temp path");
-        Directory.Delete(TempPath, true);
     }
 
     public string GetRealPath(string path)

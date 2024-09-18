@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using ReactiveUI.SourceGenerators;
 using System;
 using System.Collections.Generic;
 
@@ -6,18 +7,18 @@ namespace MWSManager.ViewModels;
 
 public partial class DownloadViewModel : ViewModelBase
 {
-	[ObservableProperty]
+	[Reactive]
 	private string name = "Unknown download";
 
-    [ObservableProperty]
+    [Reactive]
     private string modName = "Unknown mod";
 
-    [ObservableProperty]
+    [Reactive]
     private int progress;
 
-    [ObservableProperty]
+    [Reactive]
     private bool showProgressPercent = true;
 
-    [ObservableProperty]
+    [Reactive]
     private string progressText = "Downloading";
 }

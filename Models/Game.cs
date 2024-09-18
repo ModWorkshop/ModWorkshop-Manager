@@ -1,5 +1,8 @@
 ﻿using Avalonia.Controls;
+using GameFinder.Common;
 using MWSManager.Services;
+using Newtonsoft.Json;
+using Serilog;
 using SharpCompress.Readers;
 using System;
 using System.Collections.Generic;
@@ -23,7 +26,7 @@ public class Game
 {
     #region Properties
     // The name of the game
-    public string Name { get; init; } = "";
+    public string Name { get; init; }
 
     // The ID on MWS
     public uint? MWSId { get; set; }
@@ -46,23 +49,32 @@ public class Game
 
     public List<string> IgnoreModNames = [];
 
+    public Dictionary<string, string> SpecialPaths = [];
+
 
     protected bool HasLoadedMods = false;
+
+    public Game(string name, string gamePath, dynamic? extraData = null)
+    {
+        ExtraData = extraData;
+        GamePath = gamePath;
+        Name = name;
+    }
 
     #endregion
 
     #region methods
-    public Game(string name, string path, dynamic? extraData = null) {
-        Name = name;
-        GamePath = path;
-        ExtraData = extraData;
-    }
 
     public void LookForMods(bool force = false)
     {
         if (HasLoadedMods && !force)
         {
             return;
+        }
+
+        if (HasLoadedMods)
+        {
+            Mods.Clear();
         }
 
         HasLoadedMods = true;
@@ -74,7 +86,7 @@ public class Game
             {
                 foreach (var folder in Directory.GetDirectories(dir))
                 {
-                    LoadMod(folder, path);
+                    LoadMod(folder);
                 }
             }
         }
@@ -86,13 +98,13 @@ public class Game
             if (Directory.Exists(modsDir)) {
                 foreach (var file in Directory.GetFiles(modsDir, Path.GetFileName(dirPattern)))
                 {
-                    LoadMod(file, path);
+                    LoadMod(file);
                 }
             }
         }
     }
 
-    public void LoadMod(string path, string modDir)
+    public void LoadMod(string path)
     {
         var name = Path.GetFileName(path);
         if (IgnoreModNames.Contains(name))
@@ -100,38 +112,81 @@ public class Game
             return;
         }
 
-        //TODO: in some cases name can be taken from places like mod.txt, however prefer to read the MWSManager.json file.
-        var mod = new Mod { Name = name, ModPath = path };
-        ProcessMod(mod, modDir);
+        var mod = new Mod(path);
+        mod.Game = this;
+        ProcessMod(mod);
         Mods.Add(mod);
     }
 
     // Processes the mod, tries to load data like mod.txt and such to figure name, version, etc.
-    protected virtual void ProcessMod(Mod mod, string modDir)
-    {
-        
-    }
+    protected virtual void ProcessMod(Mod mod) { }
 
     public void TryInstallMod(ModInstall install)
     {
-        InstallMod(install, GetModInstallPath(install));
+        var installPath = GetModInstallPath(install);
+        if (installPath != null) {
+            Log.Information("Installing mod in {0}", installPath);
+
+            install.Move(Path.Combine(GamePath, installPath));
+
+            var mod = install.Update.Mod;
+            mod.LoadSchema(!install.Update.FreshInstall);
+            ProcessMod(install.Update.Mod);
+
+            if (install.Update.FreshInstall)
+                Mods.Add(mod);
+        } else {
+            Log.Error("Could not determine a directory to install the mod in!");
+        }
     }
 
-    public virtual void InstallMod(ModInstall install, string installPath)
+    protected string? GetModSchemaInstallPath(ModInstall install)
     {
-        install.MoveAll(Path.Combine(GamePath, installPath));
+        foreach (var filePath in install.Files)
+        {
+            var fileName = Path.GetFileName(filePath);
+            // Ensure it's only root level files
+            if (fileName == "mws-manager.json" && filePath.Replace("\\", "/").Split("/").Length == 2)
+            {
+                var schema = File.ReadAllText(install.GetRealPath(filePath));
+                var modSchema = JsonConvert.DeserializeObject<ModSchema>(schema);
+
+                if (modSchema != null && modSchema.installDir != null)
+                {
+                    var dir = modSchema.installDir;
+                    foreach(var special in SpecialPaths)
+                    {
+                        dir = dir.Replace($"%{special.Key}%", special.Value);
+                    }
+                    return dir;
+                }
+
+                break;
+            }
+        }
+
+        return null;
     }
 
     // Returns where a mod should be installed. If your game contains multiple places you must handle this yourself
-    protected virtual string GetModInstallPath(ModInstall install)
+    protected virtual string? GetModInstallPath(ModInstall install)
     {
+        var installPath = GetModSchemaInstallPath(install);
+        if (installPath != null)
+            return installPath;
+
         if (ModFileDirs.Count == 1)
         {
             return ModFileDirs[0];
         } else
         {
-            throw new Exception("Cannot determine which folder to install the mod to. Please handle this manually (GetModInstallPath)");
+            return null;
         }
+    }
+
+    public void AddSpecialPath(string name, string path)
+    {
+        SpecialPaths.Add(name, path);
     }
 }
 

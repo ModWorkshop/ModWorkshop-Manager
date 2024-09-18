@@ -2,6 +2,8 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
 using MWSManager.Views;
+using Projektanker.Icons.Avalonia;
+using Projektanker.Icons.Avalonia.MaterialDesign;
 using Serilog;
 using System;
 using System.Diagnostics;
@@ -22,7 +24,7 @@ sealed class Program
     public static void Main(string[] args)
     {
         bool ret;
-        using var mut = new Mutex(true, "MWSManager-MM", out ret);
+        new Mutex(true, "MWSManager-MM", out ret);
 
         if (!ret)
         {
@@ -93,9 +95,13 @@ sealed class Program
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    {
+        IconProvider.Current.Register<MaterialDesignIconProvider>();
+
+        return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
             .UseReactiveUI();
+    }
 }

@@ -1,29 +1,165 @@
-﻿using System;
+﻿using Avalonia.Logging;
+using MWSManager.Services;
+using Newtonsoft.Json;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using Serilog;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MWSManager.Models
 {
-    public class Mod
+    public partial class Mod : ReactiveObject
     {
-        // The ID of the mod like the MWS mod ID.
-        public string Id { get; set; }
+        #region Properties
+        private string? name;
+        /// <summary>
+        /// The name of the mod. If none is set, defaults to the folder/file name of the ModPath
+        /// </summary>
+        public string? Name { 
+            get => name ?? Path.GetFileNameWithoutExtension(ModPath);
+            set => this.RaiseAndSetIfChanged(ref name, value);
+        }
 
-        // The name of the mod
-        public string Name { get; set; }
+        /// <summary>
+        /// The authors of the mod
+        /// </summary>
+        public List<string> Authors { get; set; } = [];
 
-        // The owner/author of the mod
-        public string Owner { get; set; }
+        /// <summary>
+        /// The version of the mod
+        /// </summary>
+        [Reactive]
+        public string? version;
 
-        // The version of the mod
-        public string Version { get; set; }
+        [Reactive]
+        public string? desc;
 
-        // The path to the mod
-        public string ModPath { get; set; }
+        /// <summary>
+        /// The version of the mod
+        /// </summary>
+        public string? ModPath { get; set; }
 
-        // URL or path to the image of the mod
-        public string Thumbnail { get; set; } = "../Assets/DefaultModThumb.png";
+        /// <summary>
+        /// URL or path to the image of the mod
+        /// </summary>
+        public string? Thumbnail { get; set; }
+
+        /// <summary>
+        /// Whether or not the mod is a single file such as a pak file. Not recommended as you won't be able to load a schema file.
+        /// </summary>
+        public bool IsFile { get; set; }
+
+        /// <summary>
+        /// Whether or not schema file has been loaded
+        /// </summary>
+        public bool HasSchema { get; private set; } = false;
+
+        /// <summary>
+        /// Each update that the mod supports.
+        /// Planned mostly to be mirrors, will likely be different for mod components that have their own updates.
+        /// </summary>
+        public ObservableCollection<ModUpdate> Updates { get; } = [];
+
+        /// <summary>
+        /// The directory that the mod was installed in. This is almost always the directory of ModPath.
+        /// </summary>
+        public string? InstallDir { get; set; }
+
+        /// <summary>
+        /// The game the mod belongs to
+        /// </summary>
+        public Game? Game { get; set; }
+
+        #endregion
+
+        public Mod(string modPath, bool isFile = true)
+        {
+            FileAttributes attrs = File.GetAttributes(modPath);
+            IsFile = !attrs.HasFlag(FileAttributes.Directory);
+
+            ModPath = modPath;
+            // Goes one folder back as it is very likely installation 
+            InstallDir = Path.GetDirectoryName(modPath);
+
+            LoadSchema();
+        }
+
+        public Mod(Game game, string name)
+        {
+            Game = game;
+            Name = name;
+        }
+
+        /// <summary>
+        /// Loads schema automatically from ModPath
+        /// </summary>
+        /// <param name="reset">Whether or not to reset the previous loaded data. Useful for updates.</param>
+        public void LoadSchema(bool reset = false)
+        {
+            if (reset)
+            {
+                Name = null;
+                Version = null;
+                Authors = [];
+                HasSchema = false;
+                Updates.Clear();
+            }
+
+            if (!IsFile && ModPath != null)
+            {
+                var schemaPath = Path.Combine(ModPath, "mws-manager.json");
+
+                if (File.Exists(schemaPath))
+                {
+                    LoadSchemaFromString(File.ReadAllText(schemaPath));
+                }
+                else
+                {
+                    Log.Information("Schema doesn't exist: " + schemaPath);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads a mod-manager.json file from a string. This will override some info you might've already defined.
+        /// </summary>
+        /// <param name="schema">The schema JSON string</param>
+        public void LoadSchemaFromString(string schema)
+        {
+            var modSchema = JsonConvert.DeserializeObject<ModSchema>(schema);
+            if (modSchema != null)
+            {
+                HasSchema = true;
+
+                Name = modSchema.name;
+                Desc = modSchema.desc;
+                Version = modSchema.version;
+                Authors = [.. modSchema.authors];
+
+                if (modSchema.thumbnail != null && ModPath != null)
+                    Thumbnail = Path.Combine(ModPath, modSchema.thumbnail);
+
+                if (modSchema.installDir != null)
+                {
+                    InstallDir = modSchema.installDir;
+                }
+
+                UpdatesService updatesService = UpdatesService.Instance;
+
+                foreach (var up in modSchema.updates)
+                {
+                    Log.Information("Register Mod Update in Mod {0}, Provider: {1}, ID: {2}", Name, up.provider, up.id);
+                    var update = new ModUpdate(this, up.provider, up.id, Version);
+                    Updates.Add(update);
+                    updatesService.AddUpdate(update);
+                }
+            }
+        }
     }
 }

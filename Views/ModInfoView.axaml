@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:vm="using:MWSManager.ViewModels"
+			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="450"
              x:Class="MWSManager.Views.ModInfoView"
 			 x:DataType="vm:ModInfoViewModel"
@@ -12,7 +13,27 @@
 			<DockPanel>
 				<StackPanel DockPanel.Dock="Top">
 					<TextBlock>
-						Name: <TextBlock Text="{Binding Mod.Name}"/>
+						<asyncImageLoader:AdvancedImage
+							Width="300"
+							Height="150"
+							Stretch="UniformToFill"
+							Source="{Binding Thumbnail}"
+						/>
+						<LineBreak/>
+						<TextBlock FontWeight="Bold" FontSize="24" Text="{Binding Mod.Name}"/>
+						<LineBreak/>
+						<TextBlock IsVisible="{Binding Mod.Desc, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+							<TextBlock Text="{Binding Mod.Desc}"/>
+						</TextBlock>
+						<LineBreak/>
+						<TextBlock IsVisible="{Binding AuthorsCommaSep, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+							<TextBlock FontWeight="Bold">By</TextBlock> <TextBlock Text="{Binding AuthorsCommaSep}"/>
+						</TextBlock>
+						<LineBreak/>
+						<TextBlock IsVisible="{Binding Mod.Version, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+							<TextBlock FontWeight="Bold">Version</TextBlock> <TextBlock Text="{Binding Mod.Version}"/>
+						</TextBlock>
+						<LineBreak/>
 					</TextBlock>
 				</StackPanel>
 

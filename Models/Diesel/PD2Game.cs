@@ -41,7 +41,7 @@ namespace MWSManager.Models.Diesel
         }
 
         // Processes the mod, tries to load data like mod.txt and such to figure name, version, etc.
-        protected override void ProcessMod(Mod mod, string modDir)
+        protected override void ProcessMod(Mod mod)
         {
             LoadBLTMod(mod);
             LoadBeardLibMod(mod);
@@ -61,29 +61,21 @@ namespace MWSManager.Models.Diesel
                     if (data != null)
                     {
                         if (data.name != null)
-                        {
                             mod.Name = data.name;
-                        }
 
                         if (data.version != null)
-                        {
                             mod.Version = data.version;
-                        }
 
-                        if (data.author != null)
-                        {
-                            mod.Owner = data.author;
-                        }
+                        if (data.author != null && (!mod.HasSchema || mod.Authors.Count == 0)) // Avoid duplicates
+                            mod.Authors.Add(data.author);
 
-                        if (data.image != null)
+                        if (data.image != null && mod.Thumbnail == null)
                         {
                             var ext = Path.GetExtension(data.image);
                             // TODO: possibly handle images ourselves, sadly the async image loader doesn't handle invalid data
                             // Give it something invalid and it will crash the program..
                             if (ext == ".png")
-                            {
                                 mod.Thumbnail = $"{mod.ModPath}/{data.image}";
-                            }
                         }
                     }
                 }
@@ -133,8 +125,12 @@ namespace MWSManager.Models.Diesel
             }
         }
 
-        protected override string GetModInstallPath(ModInstall install)
+        protected override string? GetModInstallPath(ModInstall install)
         {
+            var schemaDir = GetModSchemaInstallPath(install);
+            if (schemaDir != null)
+                return schemaDir;
+
             foreach(var filePath in install.Files)
             {
                 var fileName = Path.GetFileName(filePath);

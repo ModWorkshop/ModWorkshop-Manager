@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:MWSManager.ViewModels"
+			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+			 mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+			 x:DataType="vm:ModUpdateViewModel"
+			 x:Class="MWSManager.Views.ModUpdateView">
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock.ModInfo">
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Width" Value="400"/>
+			<Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+		</Style>
+	</UserControl.Styles>
+
+	<StackPanel Spacing="4">
+		<StackPanel Spacing="8" Orientation="Horizontal">
+			<StackPanel Spacing="8">
+				<TextBlock Classes="ModInfo" Text="{Binding Update.Mod.Name}"/>
+				<TextBlock Classes="ModInfo" IsVisible="{Binding Update.NextVersion, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+					Update Available: <TextBlock Text="{Binding Update.Version}"/> -> <TextBlock Text="{Binding Update.NextVersion}"/>
+				</TextBlock>
+				<Button Command="{Binding DownloadUpdate}" IsVisible="{Binding !Update.FreshInstall}}">Update</Button>
+			</StackPanel>
+		</StackPanel>
+		<ProgressBar Value="{Binding DownloadPercent}" Margin="0 8 0 0" Width="400" ShowProgressText="True"/>
+	</StackPanel>
+
+</UserControl>

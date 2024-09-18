@@ -1,10 +1,16 @@
+using Avalonia.Collections;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
+using DynamicData.Alias;
+using DynamicData.Binding;
 using GameFinder.Common;
 using MWSManager.Models;
 using MWSManager.Services;
 using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using Serilog;
 using SharpCompress.Readers;
 using System;
 using System.Collections.Generic;
@@ -14,6 +20,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 
 namespace MWSManager.ViewModels;
@@ -25,41 +32,70 @@ public partial class GamePageViewModel : PageViewModel
 
     public Game Game { get; }
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasMods))]
-    private List<ModViewModel> mods = [];
+    public SourceList<ModViewModel> Mods { get; set; } = new();
 
-    [ObservableProperty]
+    [Reactive]
     private ModViewModel? selectedMod;
 
-    [ObservableProperty]
+    [Reactive]
     private ModInfoViewModel modInfo;
 
-    public bool HasMods => Mods.Count > 0;
+    [ObservableAsProperty]
+    public bool hasMods = false;
+
+    [Reactive]
+    private ReadOnlyObservableCollection<ModViewModel> orderedMods;
 
     public GamePageViewModel(Game game) {
         Game = game;
+        RefreshMods();
         Thumbnail = game.Thumbnail;
         ModInfo = new ModInfoViewModel();
+
+        this.WhenAnyValue(x => x.SelectedMod).Subscribe(x => OnSelectedModChanged());
+
+        hasModsHelper = Mods.CountChanged.Select(x => x > 0).ToProperty(this, x => x.HasMods);
+
+        Game.Mods.ToObservableChangeSet().Subscribe(_ => LoadMods());
+
+        Mods.Connect()
+            .AutoRefresh(x => x.HasUpdates)
+            .Sort(SortExpressionComparer<ModViewModel>.Descending(x => x.HasUpdates ? 1 : 0))
+            .Bind(out orderedMods)
+            .Subscribe();
+    }
+
+    public void RefreshMods()
+    {
+        Game.LookForMods(true);
+    }
+
+    public override void OnPageOpened()
+    {
+        Log.Information("Ok");
+        LoadMods();
+        Log.Information("{0}", Mods.Count);
     }
 
     public void LoadMods()
     {
-        Game.Mods.Clear();
-        Game.LookForMods();
+        Log.Information("Load Mods");
+        Mods.Clear();
 
+        var newMods = new List<ModViewModel>();
         foreach (var mod in Game.Mods)
         {
-            Mods.Add(new ModViewModel
-            {
-                Mod  = mod,
-            });
+            newMods.Add(new ModViewModel(mod));
         }
+
+        newMods = newMods.OrderByDescending(x => x.HasUpdates ? 1 : 0).ToList();
+
+        Mods.AddRange(newMods);
     }
 
-    partial void OnSelectedModChanged(ModViewModel? value)
+    void OnSelectedModChanged()
     {
-        ModInfo.Mod = value?.Mod ?? null;
+        ModInfo.Mod = selectedMod?.Mod ?? null;
     }
 
     public void TryInstallMod(ModInstall install)

@@ -16,21 +16,21 @@
 		</Style>
 	</UserControl.Styles>
 	
-		<StackPanel Spacing="8" Orientation="Horizontal">
-
-			<!--asyncImageLoader:AdvancedImage
+		<StackPanel Name="{Binding Mod.Name}" Spacing="8" Orientation="Horizontal">
+			<asyncImageLoader:AdvancedImage
 				Width="150"
 				Height="75"
 				Stretch="UniformToFill"
-				Source="{Binding Mod.Thumbnail}"
-			/-->
+				Source="{Binding Thumbnail}"
+			/>
 			<StackPanel Spacing="8">
-				<TextBlock Classes="ModInfo" Text="{Binding Mod.Name}"/>
-				<TextBlock Classes="ModInfo" IsVisible="{Binding Mod.Owner, Converter={x:Static ObjectConverters.IsNotNull}}">
-					By: <TextBlock Text="{Binding Mod.Owner}"/>
+				<TextBlock Classes="ModInfo" Text="{Binding Mod.Name}" FontSize="16" FontWeight="Bold"/>
+				<TextBlock Classes="ModInfo" IsVisible="{Binding AuthorsCommaSep, Converter={x:Static ObjectConverters.IsNotNull}}">
+					<TextBlock FontWeight="Bold">By</TextBlock> <TextBlock Text="{Binding AuthorsCommaSep}"/>
 				</TextBlock>
-				<TextBlock Classes="ModInfo" Margin="0 20 0 0" IsVisible="{Binding Mod.Version, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-					<TextBlock Text="{Binding Mod.Version}"/>
+
+				<TextBlock Classes="ModInfo" IsVisible="{Binding Mod.Version, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+					<TextBlock FontWeight="Bold">Version</TextBlock> <TextBlock Text="{Binding Mod.Version}"/>
 				</TextBlock>
 			</StackPanel>
 		</StackPanel>

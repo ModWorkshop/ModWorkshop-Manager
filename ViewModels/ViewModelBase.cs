@@ -3,6 +3,6 @@ using ReactiveUI;
 
 namespace MWSManager.ViewModels;
 
-public class ViewModelBase : ObservableObject
+public class ViewModelBase : ReactiveObject
 {
 }

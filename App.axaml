@@ -3,6 +3,7 @@
              x:Class="MWSManager.App"
              xmlns:local="using:MWSManager"
 			 xmlns:sty="using:FluentAvalonia.Styling"
+			 xmlns:semi="https://irihi.tech/semi"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -11,7 +12,8 @@
     </Application.DataTemplates>
   
     <Application.Styles>
-		<sty:FluentAvaloniaTheme />
+		<!--sty:FluentAvaloniaTheme/-->
+		<semi:SemiTheme Locale="en-US" />
 		<!--FluentTheme /-->
 		<StyleInclude Source="avares://AsyncImageLoader.Avalonia/AdvancedImage.axaml" />
     </Application.Styles>

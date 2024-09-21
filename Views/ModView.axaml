@@ -17,12 +17,14 @@
 	</UserControl.Styles>
 	
 		<StackPanel Name="{Binding Mod.Name}" Spacing="8" Orientation="Horizontal">
-			<asyncImageLoader:AdvancedImage
-				Width="150"
-				Height="75"
-				Stretch="UniformToFill"
-				Source="{Binding Thumbnail}"
-			/>
+			<Border ClipToBounds="True" CornerRadius="10">
+				<asyncImageLoader:AdvancedImage
+					Width="150"
+					Height="75"
+					Stretch="UniformToFill"
+					Source="{Binding Thumbnail}"
+				/>
+			</Border>
 			<StackPanel Spacing="8">
 				<TextBlock Classes="ModInfo" Text="{Binding Mod.Name}" FontSize="16" FontWeight="Bold"/>
 				<TextBlock Classes="ModInfo" IsVisible="{Binding AuthorsCommaSep, Converter={x:Static ObjectConverters.IsNotNull}}">

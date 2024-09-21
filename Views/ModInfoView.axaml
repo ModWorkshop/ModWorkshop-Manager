@@ -14,12 +14,12 @@
 				<StackPanel DockPanel.Dock="Top">
 					<TextBlock>
 						<Border ClipToBounds="True" CornerRadius="10">
-						<asyncImageLoader:AdvancedImage
-							Width="300"
-							Height="150"
-							Stretch="UniformToFill"
-							Source="{Binding Thumbnail}"
-						/>
+							<asyncImageLoader:AdvancedImage
+								Width="300"
+								Height="150"
+								Stretch="UniformToFill"
+								Source="{Binding Thumbnail}"
+							/>
 						</Border>
 						<LineBreak/>
 						<TextBlock FontWeight="Bold" FontSize="24" Text="{Binding Mod.Name}"/>
@@ -42,6 +42,7 @@
 				<StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Spacing="4">
 					<Button>Page on ModWorkshop</Button>
 					<Button>Update</Button>
+					<Button Command="{Binding BrowseToModPathCommand}">Browse...</Button>
 				</StackPanel>
 			</DockPanel>
 		</Border>

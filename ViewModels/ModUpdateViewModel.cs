@@ -26,27 +26,28 @@ public partial class ModUpdateViewModel : ViewModelBase
     [Reactive]
     private bool canUpdate = true;
 
-    public ReactiveCommand<Unit, Unit> DownloadUpdate { get; }
+    private IObservable<bool> canExecuteDownloadUpdate;
 
     public ModUpdateViewModel(ModUpdate update)
     {
         Update = update;
 
-        var canExecute = this.WhenAnyValue(x => x.CanUpdate);
-
-        DownloadUpdate = ReactiveCommand.Create(() =>
-        {
-            CanUpdate = false;
-            Update.DownloadAndInstallUpdate();
-        }, canExecute);
-
         downloadPercentHelper = this.WhenAnyValue(x => x.Update.DownloadProgress)
                 .Select(x => x * 100)
                 .ToProperty(this, x => x.DownloadPercent);
+
+        canExecuteDownloadUpdate = this.WhenAnyValue(x => x.CanUpdate);
 
         if (update.FreshInstall)
         {
             CanUpdate = false;
         }
+    }
+
+    [ReactiveCommand(CanExecute = nameof(canExecuteDownloadUpdate))]
+    private void DownloadUpdate()
+    {
+        CanUpdate = false;
+        Update.DownloadAndInstallUpdate();
     }
 }

@@ -23,7 +23,7 @@
 				<TextBlock Classes="ModInfo" IsVisible="{Binding Update.NextVersion, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
 					Update Available: <TextBlock Text="{Binding Update.Version}"/> -> <TextBlock Text="{Binding Update.NextVersion}"/>
 				</TextBlock>
-				<Button Command="{Binding DownloadUpdate}" IsVisible="{Binding !Update.FreshInstall}}">Update</Button>
+				<Button Command="{Binding DownloadUpdateCommand}" IsVisible="{Binding !Update.FreshInstall}}">Update</Button>
 			</StackPanel>
 		</StackPanel>
 		<ProgressBar Value="{Binding DownloadPercent}" Margin="0 8 0 0" Width="400" ShowProgressText="True"/>

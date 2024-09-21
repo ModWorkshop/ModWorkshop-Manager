@@ -17,16 +17,18 @@ public class UpdatesService
 
     private List<Provider> Providers = [];
 
-    private static UpdatesService? instance = null;
+    private UpdatesService() {
+        RegisterProvider(new ModWorkshop());
+        RegisterProvider(new ModWorkshopFile());
+    }
 
+    private static UpdatesService? instance = null;
     public static UpdatesService Instance
     {
         get
         {
             if (instance == null)
-            {
                 instance = new UpdatesService();
-            }
 
             return instance;
         }

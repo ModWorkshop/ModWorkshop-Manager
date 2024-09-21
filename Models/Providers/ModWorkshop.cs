@@ -140,21 +140,17 @@ public class ModWorkshopFile : Provider
             return;
         }
 
-        var app = (IClassicDesktopStyleApplicationLifetime)Application.Current.ApplicationLifetime;
-        var win = (MainWindowViewModel)app.MainWindow.DataContext;
-        foreach (var game in win.Games)
+        foreach (var game in GamesService.Instance.Games)
         {
-            //TODO: put game init outside of viewmodels for ease of access
-            if (game.Game.MWSId == mwsMod.game_id)
+            if (game.MWSId == mwsMod.game_id)
             {
                 Log.Information("New mods {0}", mwsMod.name);
-                var mod = new Mod(game.Game, mwsMod.name);
+                var mod = new Mod(game, mwsMod.name);
                 var update = new ModUpdate(mod, Name, id, mwsMod.version);
                 update.FreshInstall = true;
                 UpdatesService.Instance.AddUpdate(update);
                 DownloadAndInstall(update);
             }
-
         }
     }
 }

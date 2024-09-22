@@ -1,7 +1,7 @@
 ﻿{
   "payday2": {
     "SteamId": 218620,
-    "MWSId": 10,
+    "MWSId": 2,
     "EpicId": "384f75fdd6b34f63a2daace1a3c5dab0",
     "ClassName": "Diesel.PD2Game",
     "Icon": "avares://MWSManager/Assets/games/pd2-icon.png",
@@ -9,7 +9,12 @@
       "mods",
       "Maps",
       "assets/mod_overrides"
-    ]
+    ],
+    "SpecialPaths": {
+      "MODS": "mods",
+      "MAPS": "Maps",
+      "OVERRIDES": "assets/mod_overrides"
+    }
   },
 
   "payday3": {

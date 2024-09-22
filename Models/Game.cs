@@ -1,4 +1,5 @@
 ﻿using MWSManager.Structures;
+using Serilog;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -138,12 +139,17 @@ public class Game
         if (node.Count == 0)
             return Mods;
 
-        foreach (var childNode in node.ChildNodes)
-        {
-            CheckPossibleModInNode(childNode, Mods);
-        }
+        List<PathNode> checkChildren = [];
 
         foreach (var childNode in node.ChildNodes)
+        {
+            if (!CheckPossibleModInNode(childNode, Mods) && !childNode.IsFile)
+            {
+                checkChildren.Add(childNode);
+            }
+        }
+
+        foreach (var childNode in checkChildren)
         {
             Mods.AddRange(FindModsInTree(childNode));
         }
@@ -151,9 +157,13 @@ public class Game
         return Mods;
     }
 
-    public virtual void CheckPossibleModInNode(PathNode node, List<Mod> Mods)
+    /// <summary>
+    /// Checks if there's a mod in the path node, adds the mod into the mods list.
+    /// Returns true if it shouldn't check the node's children for possible other mods.
+    /// </summary>
+    public virtual bool CheckPossibleModInNode(PathNode node, List<Mod> Mods)
     {
-        
+        return false;
     }
 
     public void AddSpecialPath(string name, string path)

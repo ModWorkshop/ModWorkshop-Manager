@@ -1,5 +1,6 @@
 ﻿using MWSManager.Structures;
 using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -124,38 +125,42 @@ public class PD2Game : Game
         }
     }
 
-    public override void CheckPossibleModInNode(PathNode node, List<Mod> Mods)
+    public override bool CheckPossibleModInNode(PathNode node, List<Mod> Mods)
     {
         var name = node.Name;
         string? installDir = null;
 
-        if (node.IsFile)
+        var modNode = node;
+
+        if (!node.IsFile)
         {
             // BLT mods are automatically to be installed in mods folder!
-            if (name == "supermod.xml" || name == "mod.txt")
+            if (node.Contains("mod.txt") || node.Contains("supermod.xml"))
             {
                 installDir = "mods";
             }
-
-            // Maps should be installed in Maps folder
-            if (name == "add_local.xml")
+            else if (node.Contains("main.xml"))
             {
-                installDir = "Maps";
+                // Note: This will install maps in mod_overrides, but considering BeardLib 5, this should be fine
+                // Maps folder now is mostly if you wanna edit maps, otherwise it makes no difference where you put it iirc.
+                installDir = "assets/mod_overrides";
             }
-        }
-        else
-        {
+
             if (ModOverridesFolders.Contains(name))
             {
                 installDir = "assets/mod_overrides";
+                modNode = node.Parent;
             }
         }
 
         if (installDir != null)
         {
-            var mod = new Mod(this, node.Parent!.FullPath);
+            var mod = new Mod(this, modNode.FullPath);
             Mods.Add(mod);
             mod.InstallDir = installDir;
+            return true;
         }
+
+        return false;
     }
 }

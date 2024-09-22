@@ -53,7 +53,7 @@ namespace MWSManager.Models
 
         }
 
-        public override void CheckPossibleModInNode(PathNode node, List<Mod> Mods)
+        public override bool CheckPossibleModInNode(PathNode node, List<Mod> Mods)
         {
             var name = node.Name;
             string? installDir = null;
@@ -82,7 +82,11 @@ namespace MWSManager.Models
                 var mod = new Mod(this, node.Parent!.FullPath);
                 Mods.Add(mod);
                 mod.InstallDir = installDir;
+
+                return true;
             }
+
+            return false;
         }
     }
 }

@@ -152,7 +152,6 @@ public class ModInstall
 
         foreach(var childNode in node.ChildNodes)
         {
-            Log.Information(childNode.Name);
             if (childNode.IsFile && childNode.Name == "mws-manager.json")
             {
                 Log.Information("Found a mod: {0}", childNode.Parent!.FullPath);

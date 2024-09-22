@@ -9,7 +9,9 @@ namespace MWSManager.Models
     public class UE4Game : Game
     {
         public string UnrealName = "";
-        public UE4Game(string name, string path, dynamic? extraData = null) : base(name, path, extraData) {
+        public UE4Game(string name, string path, dynamic? extraData = null) : base(name, path)
+        {
+            ExtraData = extraData; // A problem with rider for some reason, can't give it to parent ctor
             UnrealName = extraData?.UnrealName ?? name;
 
             ModFileDirs.Add($"{UnrealName}/Content/Paks/~mods/*.pak");

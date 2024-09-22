@@ -32,7 +32,7 @@ public class PD2Game : Game
         "lib", "movies", "physic_effects", "settings", "shaders", "soundbanks", "strings", "units"
     };
 
-    public PD2Game(string name, string path, dynamic? extraData = null) : base(name, path, extraData)
+    public PD2Game(string name, string path, dynamic? extraData = null) : base(name, path)
     {
         IgnoreModNames.Add("logs");
         IgnoreModNames.Add("downloads");

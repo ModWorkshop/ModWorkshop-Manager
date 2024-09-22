@@ -53,22 +53,24 @@ public class PathNode(string name, bool isFile = false, PathNode? parent = null)
         return h;
     }
 
-    public PathNode? GetChild(string path) => Children.GetValueOrDefault(path);
+    public PathNode? GetChild(string name) => Children.GetValueOrDefault(name);
+
+    public bool Contains(string name) => Children.ContainsKey(name);
 
     public PathNode? Add(string path, bool isFile = false)
     {
         var splt = PathUtils.NormalizePath(path).Replace(FullPath + "/", "").Split("/");
         var node = this;
 
-        Log.Information("Add Path {0} to tree ({1})", PathUtils.NormalizePath(path).Replace(FullPath + "/", ""), FullPath);
-
         for (int i = 0; i < splt.Length; i++)
         {
             var next = node.GetChild(splt[i]);
             if (next == null)
             {
-                next = new PathNode(splt[i], i == splt.Length - 1, node);
+                next = new PathNode(splt[i], i == splt.Length - 1 && isFile, node);
                 node.Children.Add(splt[i], next);
+
+                Log.Information("Add {0}->{1}", node.FullPath, splt[i]);
             }
 
             node = next;

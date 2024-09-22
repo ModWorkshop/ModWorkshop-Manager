@@ -97,9 +97,4 @@ public partial class GamePageViewModel : PageViewModel
     {
         ModInfo.Mod = selectedMod?.Mod ?? null;
     }
-
-    public void TryInstallMod(ModInstall install)
-    {
-        Game.TryInstallMod(install);
-    }
 }

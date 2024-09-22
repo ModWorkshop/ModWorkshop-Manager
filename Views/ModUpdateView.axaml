@@ -19,7 +19,7 @@
 	<StackPanel Spacing="4">
 		<StackPanel Spacing="8" Orientation="Horizontal">
 			<StackPanel Spacing="8">
-				<TextBlock Classes="ModInfo" Text="{Binding Update.Mod.Name}"/>
+				<TextBlock Classes="ModInfo" Text="{Binding Update.Name}"/>
 				<TextBlock Classes="ModInfo" IsVisible="{Binding Update.NextVersion, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
 					Update Available: <TextBlock Text="{Binding Update.Version}"/> -> <TextBlock Text="{Binding Update.NextVersion}"/>
 				</TextBlock>

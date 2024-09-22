@@ -54,6 +54,19 @@ public class Provider
         }
     }
 
+    public virtual async Task StartModUpdate(ModUpdate update)
+    {
+        try
+        {
+            await DownloadAndInstall(update);
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to update mod with ID {0}. Error: {1}", update.Id, e);
+            throw;
+        }
+    }
+
     /// <summary>
     /// Download a mod update and try installing it
     /// </summary>
@@ -62,7 +75,7 @@ public class Provider
 
         var client = Utils.GetHTTPClient();
         var mod = update.Mod;
-        var game = mod.Game;
+        var game = update.Game;
 
         Log.Information("Downloading {0} ({1})", update.Id, DownloadURL.Replace("$Id$", update.Id));
 
@@ -102,23 +115,9 @@ public class Provider
             }
             memStream.Position = 0;
 
-            // TODO: Don't delete mod if the install fails
-            if (!update.FreshInstall && mod.ModPath != null)
-            {
-                if (mod.IsFile)
-                {
-                    File.Delete(mod.ModPath);
-                } else
-                {
-                    Directory.Delete(mod.ModPath, true);
-                }
-            }
-
             Log.Information("Done downloading, installing..");
             var modInstall = new ModInstall(update, cd.FileName, memStream);
-            update.Mod.IsFile = modInstall.SingleFile;
-            game.TryInstallMod(modInstall);
-
+            modInstall.Install();
             update.NextVersion = null;
         } else
         {
@@ -134,14 +133,26 @@ public class Provider
     public virtual async Task URISchemeHandle(string action, string id)
     {
         Log.Information("Action: {0}, ID: {1}", action, id);
-        switch(action)
+        try
         {
-            case "install":
-                await DownloadAndInstallNewMod(id);
-                break;
-            default:
-                throw new NotImplementedException("Action not implemented for URIScheme!");
+            switch (action)
+            {
+                case "install":
+                    await DownloadAndInstallNewMod(id);
+                    break;
+                default:
+                    throw new NotImplementedException("Action not implemented for URIScheme!");
+            }
         }
+        catch (Exception e)
+        {
+            if (action == "install")
+            {
+                Log.Error("Failed to download and install mod with ID {0}. Error: {1}", id, e);
+            }
+            throw;
+        }
+        
     }
 
     /// <summary>

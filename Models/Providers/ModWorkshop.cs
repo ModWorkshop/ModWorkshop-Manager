@@ -145,9 +145,7 @@ public class ModWorkshopFile : Provider
             if (game.MWSId == mwsMod.game_id)
             {
                 Log.Information("New mods {0}", mwsMod.name);
-                var mod = new Mod(game, mwsMod.name);
-                var update = new ModUpdate(mod, Name, id, mwsMod.version);
-                update.FreshInstall = true;
+                var update = new ModUpdate(game, $"{mwsMod.name} ({fileData.name})", Name, id, mwsMod.version);
                 UpdatesService.Instance.AddUpdate(update);
                 DownloadAndInstall(update);
             }

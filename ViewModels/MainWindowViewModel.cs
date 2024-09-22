@@ -108,18 +108,4 @@ public partial class MainWindowViewModel : ViewModelBase
             CurrentPage = CurrentOtherPage;
         }
     }
-
-    // 
-    public async Task TryInstallMod(Game game, ModInstall install)
-    {
-        await Task.Run(() =>
-        {
-            foreach(var gameVm in Games) {
-                if (gameVm.Game == game)
-                {
-                    gameVm.TryInstallMod(install);
-                }
-            }
-        });
-    }
 }

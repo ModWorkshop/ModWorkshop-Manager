@@ -1,12 +1,7 @@
-﻿using SharpCompress;
-using SharpCompress.Readers;
-using System;
+﻿using MWSManager.Structures;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MWSManager.Models
 {
@@ -56,37 +51,36 @@ namespace MWSManager.Models
 
         }
 
-        protected override string? GetModInstallPath(ModInstall install)
+        public override void CheckPossibleModInNode(PathNode node, List<Mod> Mods)
         {
-            var schemaDir = GetModSchemaInstallPath(install);
-            if (schemaDir != null)
-                return schemaDir;
+            var name = node.Name;
+            string? installDir = null;
 
-            //TODO: attempt to detect some common ways to install. Reject otherwise.
-
-            foreach (var filePath in install.Files)
+            if (node.IsFile)
             {
-                var fileName = Path.GetFileName(filePath);
-                var fileExt = Path.GetExtension(fileName);
-
-                // UE4SS mods always contain a main.lua or main.dll file
-                if (fileName == "main.lua" || fileName == "main.dll")
+                // BLT mods are automatically to be installed in mods folder!
+                if (name == "main.lua" || name == "main.dll")
                 {
-                    return $"{UnrealName}/Binaries/Win64/Mods";
+                    installDir = $"{UnrealName}/Binaries/Win64/Mods";
                 }
-                else if (fileExt == ".utoc")
+                else if (Path.GetExtension(name) == ".utoc")
                 {
                     // While this is not the smartest way, I believe it should more or less work.
                     // I tried using CUE4Parse, but the docs are quite lacking,
                     // It's possible also that some ucas/utoc isn't supported by it.
-                    if (File.ReadAllText(install.GetRealPath(filePath)).Contains("ModActor.uasset"))
+                    if (File.ReadAllText(node.FullPath).Contains("ModActor.uasset"))
                     {
-                        return $"{UnrealName}/Content/Paks/LogicMods";
+                        installDir = $"{UnrealName}/Content/Paks/LogicMods";
                     }
                 }
             }
 
-            return null;
+            if (installDir != null)
+            {
+                var mod = new Mod(this, node.Parent!.FullPath);
+                Mods.Add(mod);
+                mod.InstallDir = installDir;
+            }
         }
     }
 }

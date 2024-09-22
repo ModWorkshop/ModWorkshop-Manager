@@ -1,4 +1,5 @@
 ﻿using Avalonia.Logging;
+using Avalonia.Markup.Xaml.Templates;
 using MWSManager.Services;
 using Newtonsoft.Json;
 using ReactiveUI;
@@ -67,33 +68,29 @@ namespace MWSManager.Models
         public ObservableCollection<ModUpdate> Updates { get; } = [];
 
         /// <summary>
-        /// The directory that the mod was installed in. This is almost always the directory of ModPath.
+        /// The directory that the mod was installed in. This is almost always the directory of ModPath (Without the game directory)
         /// </summary>
         public string? InstallDir { get; set; }
 
         /// <summary>
         /// The game the mod belongs to
         /// </summary>
-        public Game? Game { get; set; }
+        public Game Game { get; set; }
 
         #endregion
 
-        public Mod(string modPath, bool isFile = true)
+        public Mod(Game game, string modPath)
         {
+            Game = game;
+
             FileAttributes attrs = File.GetAttributes(modPath);
             IsFile = !attrs.HasFlag(FileAttributes.Directory);
 
             ModPath = modPath;
             // Goes one folder back as it is very likely installation 
-            InstallDir = Path.GetDirectoryName(modPath);
+            InstallDir = Path.GetDirectoryName(Path.GetFullPath(modPath)).Replace(Path.GetFullPath(game.GamePath), "");
 
             LoadSchema();
-        }
-
-        public Mod(Game game, string name)
-        {
-            Game = game;
-            Name = name;
         }
 
         /// <summary>
@@ -147,7 +144,7 @@ namespace MWSManager.Models
 
                 if (modSchema.installDir != null)
                 {
-                    InstallDir = modSchema.installDir;
+                    InstallDir = Game.ParsePath(modSchema.installDir);
                 }
 
                 UpdatesService updatesService = UpdatesService.Instance;
@@ -157,8 +154,71 @@ namespace MWSManager.Models
                     Log.Information("Register Mod Update in Mod {0}, Provider: {1}, ID: {2}", Name, up.provider, up.id);
                     var update = new ModUpdate(this, up.provider, up.id, Version);
                     Updates.Add(update);
-                    updatesService.AddUpdate(update);
+                    //updatesService.AddUpdate(update); Do this in some form of full setup?
                 }
+            }
+        }
+
+
+        /// <summary>
+        /// Moves the mod into a different directory
+        /// </summary>
+        public void Move(string dir, bool prefixGamePath = true)
+        {
+            if (ModPath == null)
+            {
+                throw new Exception("Tried to move a mod without a mod path!");
+            }
+
+            if (prefixGamePath)
+            {
+                dir = Path.Combine(Game.GamePath, dir);
+            }
+
+            try
+            {
+                var oldModPath = ModPath;
+                ModPath = Path.Combine(dir, Path.GetFileName(ModPath));
+                if (IsFile)
+                {
+                    Log.Information("Move File {0} -> {1}", oldModPath, ModPath);
+                    File.Move(oldModPath, ModPath);
+                }
+                else
+                {
+                    Log.Information("Move {0} -> {1}", oldModPath, ModPath);
+                    Utils.CopyDirectory(oldModPath, ModPath);
+                    Directory.Delete(oldModPath, true);
+                }
+                Log.Information("Move Success");
+            }
+            catch (Exception e)
+            {
+                Log.Error("Couldn't move: {0}", e);
+            }
+        }
+
+        public void Register()
+        {
+            Game.AddMod(this);
+
+            var updatesService = UpdatesService.Instance;
+
+            foreach (var update in Updates)
+            {
+                updatesService.AddUpdate(update);
+            }
+        }
+
+        public void Unregister()
+        {
+            Game.RemoveMod(this);
+
+            var updatesService = UpdatesService.Instance;
+
+            foreach (var update in Updates)
+            {
+                updatesService.RemoveUpdate(update);
             }
         }
     }

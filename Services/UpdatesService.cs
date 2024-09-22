@@ -51,6 +51,11 @@ public class UpdatesService
         Updates.Add(update);
     }
 
+    public void RemoveUpdate(ModUpdate update)
+    {
+        Updates.Remove(update);
+    }
+
     public void DownloadAndInstall(ModUpdate update)
     {
         foreach (var provider in Providers)
@@ -58,7 +63,7 @@ public class UpdatesService
             if (provider.Name == update.Provider)
             {
                 Log.Information("Initating update for {0}", update.Id);
-                _ = provider.DownloadAndInstall(update);
+                _ = provider.StartModUpdate(update);
             }
         }
     }

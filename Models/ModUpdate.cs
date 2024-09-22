@@ -11,15 +11,19 @@ using System.Threading.Tasks;
 
 namespace MWSManager.Models;
 
-public partial class ModUpdate(Mod mod, string provider, string id, string version) : ReactiveObject
+public partial class ModUpdate : ReactiveObject
 {
-    public Mod Mod { get; } = mod;
+    public Mod? Mod { get; }
 
-    public string Provider { get; } = provider;
-    public string Id { get; } = id;
+    public Game Game { get; }
+
+    public string Provider { get; }
+    public string Id { get; }
+
+    public string Name { get; set; }
 
     [Reactive]
-    private string version = version;
+    private string version;
 
     [Reactive]
     private string? nextVersion;
@@ -27,7 +31,28 @@ public partial class ModUpdate(Mod mod, string provider, string id, string versi
     [Reactive]
     private double downloadProgress;
 
-    public bool FreshInstall { get; set; }
+    public bool FreshInstall { get; set; } = true;
+
+    /// <summary>
+    /// Creates a mod update for a mod
+    /// </summary>
+    public ModUpdate(Mod mod, string provider, string id, string version) : this(mod.Game, mod.Name, provider, id, version)
+    {
+        Mod = mod;
+        FreshInstall = false;
+    }
+
+    /// <summary>
+    /// Creates a mod update for a fresh install
+    /// </summary>
+    public ModUpdate(Game game, string name, string provider, string id, string version)
+    {
+        Name = name;
+        Game = game;
+        Provider = provider;
+        Id = id;
+        Version = version;
+    }
 
     public void RaiseHasUpdate(string version)
     {

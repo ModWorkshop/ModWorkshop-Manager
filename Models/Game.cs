@@ -1,17 +1,7 @@
-﻿using Avalonia.Controls;
-using GameFinder.Common;
-using MWSManager.Services;
-using Newtonsoft.Json;
-using Serilog;
-using SharpCompress.Readers;
-using System;
+﻿using MWSManager.Structures;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MWSManager.Models;
 
@@ -112,76 +102,58 @@ public class Game
             return;
         }
 
-        var mod = new Mod(path);
-        mod.Game = this;
-        ProcessMod(mod);
-        Mods.Add(mod);
+        new Mod(this, path).Register();
     }
 
     // Processes the mod, tries to load data like mod.txt and such to figure name, version, etc.
     protected virtual void ProcessMod(Mod mod) { }
 
-    public void TryInstallMod(ModInstall install)
+    public void AddMod(Mod mod)
     {
-        var installPath = GetModInstallPath(install);
-        if (installPath != null) {
-            Log.Information("Installing mod in {0}", installPath);
-
-            install.Move(Path.Combine(GamePath, installPath));
-
-            var mod = install.Update.Mod;
-            mod.LoadSchema(!install.Update.FreshInstall);
-            ProcessMod(install.Update.Mod);
-
-            if (install.Update.FreshInstall)
-                Mods.Add(mod);
-        } else {
-            Log.Error("Could not determine a directory to install the mod in!");
-        }
+        ProcessMod(mod);
+        Mods.Add(mod);
     }
 
-    protected string? GetModSchemaInstallPath(ModInstall install)
+    public void RemoveMod(Mod mod)
     {
-        foreach (var filePath in install.Files)
-        {
-            var fileName = Path.GetFileName(filePath);
-            // Ensure it's only root level files
-            if (fileName == "mws-manager.json" && filePath.Replace("\\", "/").Split("/").Length == 2)
-            {
-                var schema = File.ReadAllText(install.GetRealPath(filePath));
-                var modSchema = JsonConvert.DeserializeObject<ModSchema>(schema);
-
-                if (modSchema != null && modSchema.installDir != null)
-                {
-                    var dir = modSchema.installDir;
-                    foreach(var special in SpecialPaths)
-                    {
-                        dir = dir.Replace($"%{special.Key}%", special.Value);
-                    }
-                    return dir;
-                }
-
-                break;
-            }
-        }
-
-        return null;
+        Mods.Remove(mod);
     }
 
-    // Returns where a mod should be installed. If your game contains multiple places you must handle this yourself
-    protected virtual string? GetModInstallPath(ModInstall install)
+    /// <summary>
+    /// Parses a path that may contain placeholder paths (%UGC% -> CrimeBoss/Mods for example)
+    /// </summary>
+    public string ParsePath(string path)
     {
-        var installPath = GetModSchemaInstallPath(install);
-        if (installPath != null)
-            return installPath;
-
-        if (ModFileDirs.Count == 1)
+        foreach (var special in SpecialPaths)
         {
-            return ModFileDirs[0];
-        } else
-        {
-            return null;
+            path = path.Replace($"%{special.Key}%", special.Value);
         }
+        return path;
+    }
+
+    public List<Mod> FindModsInTree(PathNode node)
+    {
+        List<Mod> Mods = [];
+
+        if (node.Count == 0)
+            return Mods;
+
+        foreach (var childNode in node.ChildNodes)
+        {
+            CheckPossibleModInNode(childNode, Mods);
+        }
+
+        foreach (var childNode in node.ChildNodes)
+        {
+            Mods.AddRange(FindModsInTree(childNode));
+        }
+
+        return Mods;
+    }
+
+    public virtual void CheckPossibleModInNode(PathNode node, List<Mod> Mods)
+    {
+        
     }
 
     public void AddSpecialPath(string name, string path)

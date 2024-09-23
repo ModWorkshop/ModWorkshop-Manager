@@ -23,9 +23,6 @@ public partial class ModUpdateViewModel : ViewModelBase
     [ObservableAsProperty]
     public double downloadPercent;
 
-    [Reactive]
-    private bool canUpdate = true;
-
     private IObservable<bool> canExecuteDownloadUpdate;
 
     public ModUpdateViewModel(ModUpdate update)
@@ -36,18 +33,12 @@ public partial class ModUpdateViewModel : ViewModelBase
                 .Select(x => x * 100)
                 .ToProperty(this, x => x.DownloadPercent);
 
-        canExecuteDownloadUpdate = this.WhenAnyValue(x => x.CanUpdate);
-
-        if (update.FreshInstall)
-        {
-            CanUpdate = false;
-        }
+        canExecuteDownloadUpdate = Update.WhenAnyValue(x => x.Status).Select(x => x == ModUpdateStatus.Waiting);
     }
 
     [ReactiveCommand(CanExecute = nameof(canExecuteDownloadUpdate))]
     private void DownloadUpdate()
     {
-        CanUpdate = false;
         Update.DownloadAndInstallUpdate();
     }
 }

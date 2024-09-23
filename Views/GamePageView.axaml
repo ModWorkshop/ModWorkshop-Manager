@@ -9,19 +9,18 @@
 			 x:DataType="vm:GamePageViewModel"
 			 x:Class="MWSManager.Views.GamePageView">
 
-	<StackPanel Orientation="Horizontal">
+	<DockPanel HorizontalAlignment="Stretch">
 		<Panel Width="500">
 			<TextBlock IsVisible="{Binding !HasMods}"  HorizontalAlignment="Center" VerticalAlignment="Center">No mods found!</TextBlock>
 
 			<ListBox
-	Classes="FluentList"
-	IsVisible="{Binding HasMods}"
-	ItemsSource="{Binding OrderedMods}"
-	SelectedItem="{Binding SelectedMod}"
+				Classes="FluentList"
+				IsVisible="{Binding HasMods}"
+				ItemsSource="{Binding OrderedMods}"
+				SelectedItem="{Binding SelectedMod}"
 			/>
-
 
 		</Panel>
 		<views:ModInfoView DataContext="{Binding ModInfo}"/>
-	</StackPanel>
+	</DockPanel>
 </UserControl>

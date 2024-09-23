@@ -8,40 +8,60 @@
              x:Class="MWSManager.Views.ModInfoView"
 			 x:DataType="vm:ModInfoViewModel"
 			 >
-	<Panel>
+
+		<UserControl.Styles>
+			<Style Selector="ListBox.ModUpdates ListBoxItem">
+				<Setter Property="Width" Value="350"/>
+				<Setter Property="Margin" Value="4 0"/>
+			</Style>
+		</UserControl.Styles>
+
+
+		<Panel HorizontalAlignment="Stretch">
 		<Border Padding="16" IsVisible="{Binding HasMod}">
 			<DockPanel>
-				<StackPanel DockPanel.Dock="Top">
-					<TextBlock>
-						<Border ClipToBounds="True" CornerRadius="10">
-							<asyncImageLoader:AdvancedImage
-								Width="300"
-								Height="150"
-								Stretch="UniformToFill"
-								Source="{Binding Thumbnail}"
-							/>
-						</Border>
-						<LineBreak/>
+				<StackPanel DockPanel.Dock="Top" Spacing="16">
+					<Border ClipToBounds="True" CornerRadius="10">
+						<asyncImageLoader:AdvancedImage
+							Width="300"
+							Height="150"
+							HorizontalAlignment="Left"
+							Stretch="UniformToFill"
+							Source="{Binding Thumbnail}"
+						/>
+					</Border>
+					<StackPanel>
 						<TextBlock FontWeight="Bold" FontSize="24" Text="{Binding Mod.Name}"/>
-						<LineBreak/>
 						<TextBlock IsVisible="{Binding Mod.Desc, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
 							<TextBlock Text="{Binding Mod.Desc}"/>
 						</TextBlock>
-						<LineBreak/>
 						<TextBlock IsVisible="{Binding AuthorsCommaSep, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
 							<TextBlock FontWeight="Bold">By</TextBlock> <TextBlock Text="{Binding AuthorsCommaSep}"/>
 						</TextBlock>
-						<LineBreak/>
 						<TextBlock IsVisible="{Binding Mod.Version, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
 							<TextBlock FontWeight="Bold">Version</TextBlock> <TextBlock Text="{Binding Mod.Version}"/>
 						</TextBlock>
-						<LineBreak/>
-					</TextBlock>
+					</StackPanel>
+
+					<Separator/>
+
+					<StackPanel DockPanel.Dock="Top">
+						<TextBlock Classes="H3" Theme="{DynamicResource TitleTextBlock}" Text="Updates"/>
+						<ListBox Classes="FluentList ModUpdates" ItemsSource="{Binding Updates}">
+							<ListBox.ItemsPanel>
+								<ItemsPanelTemplate>
+									<WrapPanel Orientation="Horizontal"/>
+								</ItemsPanelTemplate>
+							</ListBox.ItemsPanel>
+						</ListBox>
+						<Border IsVisible="{Binding !HasUpdates}">
+							<TextBlock HorizontalAlignment="Center" Text="This mod contains no updates."/>
+						</Border>
+					</StackPanel>
 				</StackPanel>
 
-				<StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Spacing="4">
+				<StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Left" VerticalAlignment="Bottom" Spacing="4">
 					<Button>Page on ModWorkshop</Button>
-					<Button>Update</Button>
 					<Button Command="{Binding BrowseToModPathCommand}">Browse...</Button>
 				</StackPanel>
 			</DockPanel>

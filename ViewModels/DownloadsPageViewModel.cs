@@ -31,8 +31,6 @@ public partial class DownloadsPageViewModel : PageViewModel
 
         UpdatesService updatesService = UpdatesService.Instance;
 
-
-
         updatesService.Updates.ToObservableChangeSet()
             .AutoRefresh(x => x.FreshInstall)
             .AutoRefresh(x => x.NextVersion)
@@ -53,22 +51,5 @@ public partial class DownloadsPageViewModel : PageViewModel
                         Updates.Add(new ModUpdateViewModel(update));
                 }
         });
-    }
-
-    public DownloadViewModel AddDownload(string modName, string name)
-    {
-        var down = new DownloadViewModel()
-        {
-            Name = name,
-            ModName = modName
-        };
-        //Downloads.Add(down);
-
-        if (Window != null)
-        {
-            Window.CurrentOtherPage = Window.Downloads;
-        }
-
-        return down;
     }
 }

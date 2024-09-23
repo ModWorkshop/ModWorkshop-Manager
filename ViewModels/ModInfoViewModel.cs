@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,8 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DynamicData;
+using DynamicData.Binding;
 using MWSManager.Models;
 using MWSManager.Services;
 using ReactiveUI;
@@ -21,13 +24,18 @@ namespace MWSManager.ViewModels
         private Mod? mod;
 
         [ObservableAsProperty]
-        public bool hasMod = false;
+        private bool hasMod = false;
+
+        [Reactive]
+        private bool hasUpdates = false;
 
         [ObservableAsProperty]
-        public string? authorsCommaSep;
+        private string? authorsCommaSep;
 
         [ObservableAsProperty]
-        public string thumbnail;
+        private string thumbnail;
+
+        public ObservableCollection<ModUpdateViewModel> Updates { get; } = [];
 
         public ModInfoViewModel()
         {
@@ -42,6 +50,17 @@ namespace MWSManager.ViewModels
             thumbnailHelper = this.WhenAnyValue(x => x.Mod)
                 .Select(x => x?.Thumbnail ?? "../Assets/DefaultModThumb.png")
                 .ToProperty(this, x => x.Thumbnail);
+
+            this.WhenAnyValue(x => x.Mod).WhereNotNull().Subscribe(_ =>
+            {
+                Updates.Clear();
+                foreach (var update in Mod.Updates)
+                {
+                    Updates.Add(new ModUpdateViewModel(update));
+                }
+
+                HasUpdates = Updates.Count > 0;
+            });
         }
 
         [ReactiveCommand]

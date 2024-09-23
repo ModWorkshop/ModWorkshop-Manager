@@ -6,10 +6,18 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MWSManager.Models;
+
+public enum ModUpdateStatus
+{
+    Idle,
+    Waiting,
+    Downloading,
+}
 
 public partial class ModUpdate : ReactiveObject
 {
@@ -30,6 +38,9 @@ public partial class ModUpdate : ReactiveObject
 
     [Reactive]
     private double downloadProgress;
+
+    [Reactive]
+    private ModUpdateStatus status = ModUpdateStatus.Idle;
 
     public bool FreshInstall { get; set; } = true;
 
@@ -52,16 +63,28 @@ public partial class ModUpdate : ReactiveObject
         Provider = provider;
         Id = id;
         Version = version;
+
+        this.WhenAnyValue(x => x.downloadProgress)
+            .Select(x => x == 1)
+            .Subscribe(doneDownloading =>
+            {
+                if (doneDownloading)
+                {
+                    Status = ModUpdateStatus.Idle;
+                }
+            });
     }
 
     public void RaiseHasUpdate(string version)
     {
         Log.Information("Received next version! {0}", version);
         NextVersion = version;
+        status = ModUpdateStatus.Waiting;
     }
 
     public void DownloadAndInstallUpdate()
     {
+        status = ModUpdateStatus.Downloading;
         UpdatesService updates = UpdatesService.Instance;
         updates.DownloadAndInstall(this);
     }

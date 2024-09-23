@@ -7,15 +7,26 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 x:DataType="vm:DownloadsPageViewModel"
              x:Class="MWSManager.Views.DownloadsPageView">
-	<Panel>
-		<ListBox
-			Classes="FluentList"
-			ItemsSource="{Binding Updates}"
-		>
+
+	<UserControl.Styles>
+		<Style Selector="ListBox.ModUpdates ListBoxItem">
+			<Setter Property="Width" Value="350"/>
+			<Setter Property="Margin" Value="4 0"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Panel HorizontalAlignment="Left">
+
+		<ListBox Classes="FluentList ModUpdates" ItemsSource="{Binding Updates}">
+			<ListBox.ItemsPanel>
+				<ItemsPanelTemplate>
+					<WrapPanel Orientation="Horizontal"/>
+				</ItemsPanelTemplate>
+			</ListBox.ItemsPanel>
 		</ListBox>
 		
 		<Border Padding="16" IsVisible="{Binding !HasUpdates}">
-			<TextBlock HorizontalAlignment="Center" Text="No Downloads have been initiated yet."/>
+			<TextBlock HorizontalAlignment="Center" Text="No updates or downloads currently active."/>
 		</Border>
 	</Panel>
 </UserControl>

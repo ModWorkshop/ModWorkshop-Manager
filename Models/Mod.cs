@@ -80,7 +80,7 @@ namespace MWSManager.Models
 
         #endregion
 
-        public Mod(Game game, string modPath, string? installPath = null)
+        public Mod(Game game, string modPath, string? installDir = null)
         {
             Game = game;
 
@@ -88,12 +88,14 @@ namespace MWSManager.Models
             IsFile = !attrs.HasFlag(FileAttributes.Directory);
 
             ModPath = modPath;
-            // Goes one folder back as it is very likely installation 
-            InstallDir = Path.GetDirectoryName(Path.GetFullPath(modPath)).Replace(Path.GetFullPath(game.GamePath), "");
 
-            if (installPath != null)
+            if (installDir == null)
             {
-                installPath = installPath;
+                // Goes one folder back as it is very likely installation 
+                InstallDir = Path.GetDirectoryName(Path.GetFullPath(modPath)).Replace(Path.GetFullPath(game.GamePath), "");
+            } else
+            {
+                InstallDir = installDir;
             }
 
             LoadSchema();

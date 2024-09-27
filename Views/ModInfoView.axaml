@@ -21,11 +21,10 @@
 		<Border Padding="16" IsVisible="{Binding HasMod}">
 			<DockPanel>
 				<StackPanel DockPanel.Dock="Top" Spacing="16">
-					<Border ClipToBounds="True" CornerRadius="10">
+					<Border ClipToBounds="True" CornerRadius="10" HorizontalAlignment="Left">
 						<asyncImageLoader:AdvancedImage
 							Width="300"
 							Height="150"
-							HorizontalAlignment="Left"
 							Stretch="UniformToFill"
 							Source="{Binding Thumbnail}"
 						/>

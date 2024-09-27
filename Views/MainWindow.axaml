@@ -6,7 +6,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
 		xmlns:ui="using:FluentAvalonia.UI.Controls"
-        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"
+		xmlns:labs="using:Avalonia.Labs.Panels"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="300"
         x:Class="MWSManager.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/icon.ico"
@@ -38,12 +39,12 @@
 		</Style>
 
 		<Style Selector="ListBox.ThumbList ListBoxItem">
-			<Setter Property="Width" Value="72"/>
-			<Setter Property="Height" Value="72"/>
+			<Setter Property="Width" Value="64"/>
+			<Setter Property="Height" Value="64"/>
 		</Style>
 	</Window.Styles>
 	<DockPanel ZIndex="10">
-		<Panel>
+		<labs:FlexPanel Direction="Column" JustifyContent="SpaceBetween" RowSpacing="32">
 			<ListBox ItemsSource="{Binding Games}"  SelectedItem="{Binding CurrentGame}" Classes="ThumbList">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
@@ -56,11 +57,12 @@
 								asyncImageLoader:ImageLoader.Source="{Binding Thumbnail}"
 							/>
 						</Border>
+
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
 
-			<ListBox ItemsSource="{Binding OtherPages}" SelectedItem="{Binding CurrentOtherPage}" Classes="ThumbList" VerticalAlignment="Bottom">
+			<ListBox ItemsSource="{Binding OtherPages}" SelectedItem="{Binding CurrentOtherPage}" Classes="ThumbList" Height="160">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
 						<Border ClipToBounds="True" CornerRadius="10">
@@ -75,7 +77,7 @@
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
-		</Panel>
+		</labs:FlexPanel>
 		<TransitioningContentControl Content="{Binding CurrentPage}"/>
 	</DockPanel>
 </Window>

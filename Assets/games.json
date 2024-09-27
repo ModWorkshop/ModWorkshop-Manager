@@ -56,7 +56,7 @@
 
   "cassette-beasts": {
     "SteamID": 1321440,
-    "MWSID": 1,
+    "MWSID": 5,
     "Icon": "avares://MWSManager/Assets/games/cassette-icon.png",
     "ClassName": "CassetteBeastsGame"
   }

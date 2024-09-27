@@ -53,7 +53,7 @@ public class CassetteBeastsGame : Game
     public override bool CheckPossibleModInNode(PathNode node, List<Mod> Mods)
     {
         // Detects psk files and installs them in the mods folder
-        if (node.IsFile && Path.GetExtension(node.Name) == ".psk")
+        if (node.IsFile && Path.GetExtension(node.Name) == ".pck")
         {
             Mods.Add(new Mod(this, node.FullPath, "mods"));
             return true;

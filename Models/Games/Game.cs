@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 
-namespace MWSManager.Models;
+namespace MWSManager.Models.Games;
 
-public enum InstallMethod {
+public enum InstallMethod
+{
     Install, // Install the mod as-is. Example: pak files
     ExtractAndInstall, // Extract the mod and install it. Example: zipped PD2 mods.
     Other, // Do something else, requires implementing some kind of installation.
@@ -42,6 +43,7 @@ public class Game
 
     public Dictionary<string, string> SpecialPaths = [];
 
+    public bool ScanOnlyGamePath = true;
 
     protected bool HasLoadedMods = false;
 
@@ -70,9 +72,11 @@ public class Game
 
         HasLoadedMods = true;
 
+        var prefix = ScanOnlyGamePath ? GamePath + "/" : "";
+
         foreach (var path in ModDirs)
         {
-            var dir = $"{GamePath}/{path}";
+            var dir = prefix + path;
             if (Directory.Exists(dir))
             {
                 foreach (var folder in Directory.GetDirectories(dir))
@@ -84,9 +88,10 @@ public class Game
 
         foreach (var path in ModFileDirs)
         {
-            var dirPattern = $"{GamePath}/{path}";
+            var dirPattern = prefix + path;
             var modsDir = Path.GetDirectoryName(dirPattern);
-            if (Directory.Exists(modsDir)) {
+            if (Directory.Exists(modsDir))
+            {
                 foreach (var file in Directory.GetFiles(modsDir, Path.GetFileName(dirPattern)))
                 {
                     LoadMod(file);

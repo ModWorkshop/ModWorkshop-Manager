@@ -6,7 +6,7 @@ using DynamicData;
 using DynamicData.Alias;
 using DynamicData.Binding;
 using GameFinder.Common;
-using MWSManager.Models;
+using MWSManager.Models.Games;
 using MWSManager.Services;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Logging;
 using Avalonia.Markup.Xaml.Templates;
+using MWSManager.Models.Games;
 using MWSManager.Services;
 using Newtonsoft.Json;
 using ReactiveUI;
@@ -79,7 +80,7 @@ namespace MWSManager.Models
 
         #endregion
 
-        public Mod(Game game, string modPath)
+        public Mod(Game game, string modPath, string? installPath = null)
         {
             Game = game;
 
@@ -89,6 +90,11 @@ namespace MWSManager.Models
             ModPath = modPath;
             // Goes one folder back as it is very likely installation 
             InstallDir = Path.GetDirectoryName(Path.GetFullPath(modPath)).Replace(Path.GetFullPath(game.GamePath), "");
+
+            if (installPath != null)
+            {
+                installPath = installPath;
+            }
 
             LoadSchema();
         }

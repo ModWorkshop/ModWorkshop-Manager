@@ -4,17 +4,21 @@
     "MWSId": 2,
     "EpicId": "384f75fdd6b34f63a2daace1a3c5dab0",
     "ClassName": "Diesel.PD2Game",
-    "Icon": "avares://MWSManager/Assets/games/pd2-icon.png",
-    "ModDirs": [
-      "mods",
-      "Maps",
-      "assets/mod_overrides"
-    ],
-    "SpecialPaths": {
-      "MODS": "mods",
-      "MAPS": "Maps",
-      "OVERRIDES": "assets/mod_overrides"
-    }
+    "Icon": "avares://MWSManager/Assets/games/pd2-icon.png"
+  },
+
+  "raidww2": {
+    "SteamID": 414740,
+    "MWSId": 3,
+    "ClassName": "Diesel.RAIDWW2Game",
+    "Icon": "avares://MWSManager/Assets/games/rww2-icon.png"
+  },
+
+  "pdth": {
+    "SteamID": 24240,
+    "MWSId": 4,
+    "ClassName": "Diesel.PDTHGame",
+    "Icon": "avares://MWSManager/Assets/games/pdth-icon.png"
   },
 
   "payday3": {
@@ -41,5 +45,19 @@
     "ModDIrs": [
       "CrimeBoss/Mods"
     ]
+  },
+
+  "noita": {
+    "SteamID": 881100,
+    "MWSId": 1,
+    "Icon": "avares://MWSManager/Assets/games/noita-icon.png",
+    "ClassName": "NoitaGame"
+  },
+
+  "cassette-beasts": {
+    "SteamID": 1321440,
+    "MWSID": 1,
+    "Icon": "avares://MWSManager/Assets/games/cassette-icon.png",
+    "ClassName": "CassetteBeastsGame"
   }
 }

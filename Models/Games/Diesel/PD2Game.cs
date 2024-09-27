@@ -8,7 +8,7 @@ using System.Linq;
 using System.Xml;
 
 
-namespace MWSManager.Models.Diesel;
+namespace MWSManager.Models.Games.Diesel;
 
 // mod.txt definition file
 public class BLTModDefinition
@@ -25,16 +25,13 @@ public class BeardLibMain
     public string? name;
 }
 
-public class PD2Game : Game
+public class PD2Game : DieselGame
 {
-    public string[] ModOverridesFolders =
-    {
-        "anims", "units", "core", "effects", "environments", "fonts", "gamedata","guis", "levels",
-        "lib", "movies", "physic_effects", "settings", "shaders", "soundbanks", "strings", "units"
-    };
-
     public PD2Game(string name, string path, dynamic? extraData = null) : base(name, path)
     {
+        ModDirs.Add("Maps");
+        SpecialPaths.Add("MAPS", "Maps");
+
         IgnoreModNames.Add("logs");
         IgnoreModNames.Add("downloads");
         IgnoreModNames.Add("saves");
@@ -106,7 +103,8 @@ public class PD2Game : Game
                 {
                     case XmlNodeType.Element:
                         {
-                            if (reader.Name == "mod" || reader.Name == "table") {
+                            if (reader.Name == "mod" || reader.Name == "table")
+                            {
                                 //Trace.WriteLine("Name: "+ reader.GetAttribute("name"));
                             }
                             else if (reader.Name == "AssetUpdates")
@@ -127,9 +125,7 @@ public class PD2Game : Game
 
     public override bool CheckPossibleModInNode(PathNode node, List<Mod> Mods)
     {
-        var name = node.Name;
         string? installDir = null;
-
         var modNode = node;
 
         if (!node.IsFile)
@@ -143,21 +139,17 @@ public class PD2Game : Game
             {
                 // Note: This will install maps in mod_overrides, but considering BeardLib 5, this should be fine
                 // Maps folder now is mostly if you wanna edit maps, otherwise it makes no difference where you put it iirc.
-                installDir = "assets/mod_overrides";
-            }
-
-            if (ModOverridesFolders.Contains(name))
+                installDir = ModOverridesDir;
+            } else if (ModOverridesFolders.Contains(node.Name))
             {
-                installDir = "assets/mod_overrides";
+                installDir = ModOverridesDir;
                 modNode = node.Parent;
             }
         }
 
         if (installDir != null)
         {
-            var mod = new Mod(this, modNode.FullPath);
-            Mods.Add(mod);
-            mod.InstallDir = installDir;
+            Mods.Add(new Mod(this, modNode.FullPath, installDir));
             return true;
         }
 

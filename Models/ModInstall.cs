@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using DynamicData;
 using GameFinder.Common;
+using MWSManager.Models.Games;
 using MWSManager.Services;
 using MWSManager.Structures;
 using Serilog;

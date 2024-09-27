@@ -5,7 +5,6 @@ using GameFinder.StoreHandlers.EGS;
 using GameFinder.StoreHandlers.Steam.Models.ValueTypes;
 using GameFinder.StoreHandlers.Steam;
 using MWSManager.Models.Providers;
-using MWSManager.Models;
 using MWSManager.ViewModels;
 using Newtonsoft.Json;
 using ReactiveUI;
@@ -17,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NexusMods.Paths;
+using MWSManager.Models.Games;
 
 namespace MWSManager.Services;
 
@@ -97,7 +97,7 @@ public class GamesService
                 Game? gameObj = null;
                 if (gameDef.ClassName != null)
                 {
-                    var t = Type.GetType("MWSManager.Models." + gameDef.ClassName);
+                    var t = Type.GetType("MWSManager.Models.Games." + gameDef.ClassName);
                     if (t != null)
                     {
                         gameObj = (Game?)Activator.CreateInstance(t, gameName, gamePath, gameDef.ExtraData);

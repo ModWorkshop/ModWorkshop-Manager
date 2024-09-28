@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace MWSManager.ViewModels;
 
@@ -46,6 +47,9 @@ public partial class GamePageViewModel : PageViewModel
     [Reactive]
     private ReadOnlyObservableCollection<ModViewModel> orderedMods;
 
+    [Reactive]
+    private string searchModQuery = "";
+
     public GamePageViewModel(Game game) {
         Game = game;
         RefreshMods();
@@ -60,7 +64,9 @@ public partial class GamePageViewModel : PageViewModel
 
         Mods.Connect()
             .AutoRefresh(x => x.HasUpdates)
+            .AutoRefreshOnObservable(x => this.WhenAnyValue(x => x.SearchModQuery))
             .Sort(SortExpressionComparer<ModViewModel>.Descending(x => x.HasUpdates ? 1 : 0))
+            .Filter(x => SearchModQuery.Length == 0 || Regex.IsMatch(x.Mod.Name, SearchModQuery))
             .Bind(out orderedMods)
             .Subscribe();
     }

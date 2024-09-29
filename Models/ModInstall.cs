@@ -90,13 +90,13 @@ public class ModInstall
 
     public void Install()
     {
-        var mods = FindSchemaMods(Tree);
+        var mods = FindModsWithMetadataFile(Tree);
 
         // Let the game try figuring out where to put the files
         // We don't want to mix the two though
         if (mods.Count == 0)
         {
-            Log.Information("Found no mods with schema file, trying to search with game...");
+            Log.Information("Found no mods with metadata file, trying to search with game...");
             mods = Game.FindModsInTree(Tree);
         }
 
@@ -142,9 +142,9 @@ public class ModInstall
     /// <summary>
     /// Attempts to find mods in the PathTree, returns a list of tuples that contain the mod and path to them.
     /// It looks through each child of the root and if finds none, continues recursively to the grandchildren.
-    /// This prevents finding a schema file that is contained inside another mod (mod component)
+    /// This prevents finding a metadata file that is contained inside another mod (mod component)
     /// </summary>
-    public List<Mod> FindSchemaMods(PathNode node)
+    public List<Mod> FindModsWithMetadataFile(PathNode node)
     {
         List<Mod> Mods = [];
 
@@ -162,7 +162,7 @@ public class ModInstall
 
         foreach (var childNode in node.ChildNodes)
         {
-            Mods.AddRange(FindSchemaMods(childNode));
+            Mods.AddRange(FindModsWithMetadataFile(childNode));
         }
 
         return Mods;

@@ -53,14 +53,14 @@ namespace MWSManager.Models
         public string? Thumbnail { get; set; }
 
         /// <summary>
-        /// Whether or not the mod is a single file such as a pak file. Not recommended as you won't be able to load a schema file.
+        /// Whether or not the mod is a single file such as a pak file. Not recommended as you won't be able to load a metadata file.
         /// </summary>
         public bool IsFile { get; set; }
 
         /// <summary>
-        /// Whether or not schema file has been loaded
+        /// Whether or not metadata file has been loaded
         /// </summary>
-        public bool HasSchema { get; private set; } = false;
+        public bool LoadedMetadata { get; private set; } = false;
 
         /// <summary>
         /// Each update that the mod supports.
@@ -98,35 +98,35 @@ namespace MWSManager.Models
                 InstallDir = installDir;
             }
 
-            LoadSchema();
+            LoadMetadata();
         }
 
         /// <summary>
-        /// Loads schema automatically from ModPath
+        /// Loads metadataw automatically from ModPath
         /// </summary>
         /// <param name="reset">Whether or not to reset the previous loaded data. Useful for updates.</param>
-        public void LoadSchema(bool reset = false)
+        public void LoadMetadata(bool reset = false)
         {
             if (reset)
             {
                 Name = null;
                 Version = null;
                 Authors = [];
-                HasSchema = false;
+                LoadedMetadata = false;
                 Updates.Clear();
             }
 
             if (!IsFile && ModPath != null)
             {
-                var schemaPath = Path.Combine(ModPath, "mws-manager.json");
+                var metadataPath = Path.Combine(ModPath, "mws-manager.json");
 
-                if (File.Exists(schemaPath))
+                if (File.Exists(metadataPath))
                 {
-                    LoadSchemaFromString(File.ReadAllText(schemaPath));
+                    LoadMetadataFromString(File.ReadAllText(metadataPath));
                 }
                 else
                 {
-                    Log.Information("Schema doesn't exist: " + schemaPath);
+                    Log.Information("Metadata doesn't exist: " + metadataPath);
                 }
             }
         }
@@ -134,30 +134,30 @@ namespace MWSManager.Models
         /// <summary>
         /// Loads a mod-manager.json file from a string. This will override some info you might've already defined.
         /// </summary>
-        /// <param name="schema">The schema JSON string</param>
-        public void LoadSchemaFromString(string schema)
+        /// <param name="json">The mod's metadata JSON string</param>
+        public void LoadMetadataFromString(string json)
         {
-            var modSchema = JsonConvert.DeserializeObject<ModSchema>(schema);
-            if (modSchema != null)
+            var metadata = JsonConvert.DeserializeObject<ModMetadata>(json);
+            if (metadata != null)
             {
-                HasSchema = true;
+                LoadedMetadata = true;
 
-                Name = modSchema.name;
-                Desc = modSchema.desc;
-                Version = modSchema.version;
-                Authors = [.. modSchema.authors];
+                Name = metadata.name;
+                Desc = metadata.desc;
+                Version = metadata.version;
+                Authors = [.. metadata.authors];
 
-                if (modSchema.thumbnail != null && ModPath != null)
-                    Thumbnail = Path.Combine(ModPath, modSchema.thumbnail);
+                if (metadata.thumbnail != null && ModPath != null)
+                    Thumbnail = Path.Combine(ModPath, metadata.thumbnail);
 
-                if (modSchema.installDir != null)
+                if (metadata.installDir != null)
                 {
-                    InstallDir = Game.ParsePath(modSchema.installDir);
+                    InstallDir = Game.ParsePath(metadata.installDir);
                 }
 
                 UpdatesService updatesService = UpdatesService.Instance;
 
-                foreach (var up in modSchema.updates)
+                foreach (var up in metadata.updates)
                 {
                     Log.Information("Register Mod Update in Mod {0}, Provider: {1}, ID: {2}", Name, up.provider, up.id);
                     var update = new ModUpdate(this, up.provider, up.id, Version);

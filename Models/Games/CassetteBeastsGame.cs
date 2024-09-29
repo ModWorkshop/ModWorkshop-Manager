@@ -39,7 +39,7 @@ public class CassetteBeastsGame : Game
                     var splt = entry.Path.Replace("res://mods/", "").Split("/");
                     if (splt.Length > 1 && splt[1] == "mws-manager.tres")
                     {
-                        mod.LoadSchemaFromString(new StreamReader(entry.Open()).ReadToEnd());
+                        mod.LoadMetadataFromString(new StreamReader(entry.Open()).ReadToEnd());
                     }
                 }
             }

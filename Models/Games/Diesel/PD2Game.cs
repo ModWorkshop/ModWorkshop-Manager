@@ -63,7 +63,7 @@ public class PD2Game : DieselGame
                     if (data.version != null)
                         mod.Version = data.version;
 
-                    if (data.author != null && (!mod.HasSchema || mod.Authors.Count == 0)) // Avoid duplicates
+                    if (data.author != null && (!mod.LoadedMetadata || mod.Authors.Count == 0)) // Avoid duplicates
                         mod.Authors.Add(data.author);
 
                     if (data.image != null && mod.Thumbnail == null)

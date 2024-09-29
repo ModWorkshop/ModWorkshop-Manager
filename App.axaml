@@ -13,10 +13,14 @@
     </Application.DataTemplates>
   
     <Application.Styles>
+		<Style Selector="TextBox.contentMessage">
+			<Setter Property="IsHitTestVisible" Value="False"/>
+		</Style>
 		<!--sty:FluentAvaloniaTheme/-->
 		<semi:SemiTheme Locale="en-US" />
 		<!--FluentTheme /-->
 		<labs:ControlThemes/>
 		<StyleInclude Source="avares://AsyncImageLoader.Avalonia/AdvancedImage.axaml" />
-    </Application.Styles>
+
+	</Application.Styles>
 </Application>

@@ -50,6 +50,20 @@ public partial class DownloadsPageViewModel : PageViewModel
                     if (!exists)
                         Updates.Add(new ModUpdateViewModel(update));
                 }
+
+                // Remove updates that no longer exist
+                foreach (var muvm in Updates)
+                {
+                    var foundOrInstall = muvm.Update.FreshInstall;
+                    foreach (var update in updatesService.Updates)
+                    {
+                        if (update == muvm.Update)
+                            foundOrInstall = true;
+                    }
+
+                    if (!foundOrInstall)
+                        Updates.Remove(muvm);
+                }
         });
     }
 }

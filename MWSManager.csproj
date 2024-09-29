@@ -44,6 +44,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.1" />
     <PackageReference Include="GameFinder" Version="4.2.4" />
     <PackageReference Include="HotAvalonia.Extensions" Version="1.1.1" />
+    <PackageReference Include="MessageBox.Avalonia" Version="3.1.6" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Projektanker.Icons.Avalonia" Version="9.4.0" />

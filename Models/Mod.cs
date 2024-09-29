@@ -127,10 +127,10 @@ namespace MWSManager.Models
                 {
                     var metadataPath = Path.Combine(Path.GetDirectoryName(ModPath), $"{Path.GetFileNameWithoutExtension(ModPath)}.mws-manager.json");
 
-                if (File.Exists(metadataPath))
-                {
-                    LoadMetadataFromString(File.ReadAllText(metadataPath));
-                }
+                    if (File.Exists(metadataPath))
+                    {
+                        LoadMetadataFromString(File.ReadAllText(metadataPath));
+                    }
                 } else
                 {
                     var metadataPath = Path.Combine(ModPath, "mws-manager.json");
@@ -204,6 +204,11 @@ namespace MWSManager.Models
                 {
                     Log.Information("Move File {0} -> {1}", oldModPath, ModPath);
                     File.Move(oldModPath, ModPath);
+                    if (LoadedMetadata)
+                    {
+                        var metadataFile = $"{Path.GetFileNameWithoutExtension(ModPath)}.mws-manager.json";
+                        File.Move(Path.Combine(Path.GetDirectoryName(ModPath), metadataFile), Path.Combine(dir, metadataFile));
+                    }
                 }
                 else
                 {
@@ -217,6 +222,26 @@ namespace MWSManager.Models
             {
                 Log.Error("Couldn't move: {0}", e);
             }
+        }
+
+        public void Delete()
+        {
+            if (ModPath == null)
+                return;
+
+            if (IsFile)
+            {
+                File.Delete(ModPath);
+                if (LoadedMetadata)
+                {
+                    File.Delete(Path.Combine(Path.GetDirectoryName(ModPath), $"{Path.GetFileNameWithoutExtension(ModPath)}.mws-manager.json"));
+                }
+            } else
+            {
+                Directory.Delete(ModPath, true);
+            }
+
+            Unregister();
         }
 
         public void Register()

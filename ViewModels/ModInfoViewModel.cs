@@ -10,11 +10,18 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DynamicData;
 using DynamicData.Binding;
+using MsBox.Avalonia.Enums;
+using MsBox.Avalonia;
 using MWSManager.Models;
 using MWSManager.Services;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 using Serilog;
+using System.Threading.Tasks;
+using Avalonia.Controls.ApplicationLifetimes;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Models;
+using Avalonia.Controls;
 
 namespace MWSManager.ViewModels
 {
@@ -103,6 +110,38 @@ namespace MWSManager.ViewModels
                 {
                     Log.Error("Couldn't open page URL: {0}. {1}", PageUrl, e);
                 }
+            }
+        }
+
+        [ReactiveCommand]
+        private async Task DeleteMod()
+        {
+            try
+            {
+                var box = MessageBoxManager.GetMessageBoxCustom(new MessageBoxCustomParams
+                {
+                    ContentTitle = "Are you sure you want to delete the mod?",
+                    ContentMessage = "Deleting mods is an irreversible action!",
+                    ButtonDefinitions = [
+                        new() { Name = "Yes" },
+                        new() { Name = "No", IsCancel = true },
+                    ],
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                });
+
+                if (Avalonia.Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var result = await box.ShowWindowDialogAsync(desktop.MainWindow);
+                    if (result == "Yes")
+                    {
+                        Mod.Delete();
+                    }
+                }
+                    
+            }
+            catch (Exception)
+            {
+                Log.Error("Failed opening dialog!");
             }
         }
     }

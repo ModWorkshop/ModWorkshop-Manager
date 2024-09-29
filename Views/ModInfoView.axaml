@@ -64,6 +64,8 @@
 						ModWorkshop Page
 					</Button>
 					<Button Command="{Binding BrowseToModPathCommand}">Browse...</Button>
+
+					<Button Command="{Binding DeleteModCommand}" Classes="Danger">Delete</Button>
 				</StackPanel>
 			</DockPanel>
 		</Border>

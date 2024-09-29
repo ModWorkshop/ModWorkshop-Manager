@@ -121,17 +121,24 @@ namespace MWSManager.Models
                 Updates.Clear();
             }
 
-            if (!IsFile && ModPath != null)
+            if (ModPath != null)
             {
-                var metadataPath = Path.Combine(ModPath, "mws-manager.json");
+                if (IsFile)
+                {
+                    var metadataPath = Path.Combine(Path.GetDirectoryName(ModPath), $"{Path.GetFileNameWithoutExtension(ModPath)}.mws-manager.json");
 
                 if (File.Exists(metadataPath))
                 {
                     LoadMetadataFromString(File.ReadAllText(metadataPath));
                 }
-                else
+                } else
                 {
-                    Log.Information("Metadata doesn't exist: " + metadataPath);
+                    var metadataPath = Path.Combine(ModPath, "mws-manager.json");
+
+                    if (File.Exists(metadataPath))
+                    {
+                        LoadMetadataFromString(File.ReadAllText(metadataPath));
+                    }
                 }
             }
         }

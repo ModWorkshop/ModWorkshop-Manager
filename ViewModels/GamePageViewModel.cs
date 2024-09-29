@@ -66,7 +66,7 @@ public partial class GamePageViewModel : PageViewModel
             .AutoRefresh(x => x.HasUpdates)
             .AutoRefreshOnObservable(x => this.WhenAnyValue(x => x.SearchModQuery))
             .Sort(SortExpressionComparer<ModViewModel>.Descending(x => x.HasUpdates ? 1 : 0))
-            .Filter(x => SearchModQuery.Length == 0 || Regex.IsMatch(x.Mod.Name, SearchModQuery))
+            .Filter(x => SearchModQuery.Length == 0 || Regex.IsMatch(x.Mod.Name.ToLower(), SearchModQuery.ToLower()))
             .Bind(out orderedMods)
             .Subscribe();
     }

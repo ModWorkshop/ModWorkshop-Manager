@@ -60,7 +60,9 @@
 				</StackPanel>
 
 				<StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Left" VerticalAlignment="Bottom" Spacing="4">
-					<Button>Page on ModWorkshop</Button>
+					<Button IsVisible="{Binding PageUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Command="{Binding OpenPageUrlCommand}">
+						ModWorkshop Page
+					</Button>
 					<Button Command="{Binding BrowseToModPathCommand}">Browse...</Button>
 				</StackPanel>
 			</DockPanel>

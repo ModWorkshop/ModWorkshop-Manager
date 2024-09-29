@@ -29,6 +29,9 @@ namespace MWSManager.ViewModels
         [Reactive]
         private bool hasUpdates = false;
 
+        [Reactive]
+        private string? pageUrl;
+
         [ObservableAsProperty]
         private string? authorsCommaSep;
 
@@ -51,15 +54,16 @@ namespace MWSManager.ViewModels
                 .Select(x => x?.Thumbnail ?? "../Assets/DefaultModThumb.png")
                 .ToProperty(this, x => x.Thumbnail);
 
-            this.WhenAnyValue(x => x.Mod).WhereNotNull().Subscribe(_ =>
+            this.WhenAnyValue(x => x.Mod).WhereNotNull().Subscribe(mod =>
             {
                 Updates.Clear();
-                foreach (var update in Mod.Updates)
+                foreach (var update in mod.Updates)
                 {
                     Updates.Add(new ModUpdateViewModel(update));
                 }
 
                 HasUpdates = Updates.Count > 0;
+                PageUrl = mod.Id != null ? $"https://modworkshop.net/mod/{mod.Id}" : null;
             });
         }
 
@@ -80,6 +84,25 @@ namespace MWSManager.ViewModels
             catch (Exception e)
             {
                 Log.Information("{0}", e);
+            }
+        }
+
+        [ReactiveCommand]
+        private void OpenPageUrl()
+        {
+            if (PageUrl != null)
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(PageUrl)
+                    { 
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Couldn't open page URL: {0}. {1}", PageUrl, e);
+                }
             }
         }
     }

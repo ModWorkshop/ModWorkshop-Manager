@@ -34,6 +34,11 @@ namespace MWSManager.Models
         public List<string> Authors { get; set; } = [];
 
         /// <summary>
+        /// The ID of the mod in MWS (optional, used for stuff like page buttons)
+        /// </summary>
+        public int? Id;
+
+        /// <summary>
         /// The version of the mod
         /// </summary>
         [Reactive]
@@ -146,6 +151,7 @@ namespace MWSManager.Models
                 Desc = metadata.desc;
                 Version = metadata.version;
                 Authors = [.. metadata.authors];
+                Id = metadata.id;
 
                 if (metadata.thumbnail != null && ModPath != null)
                     Thumbnail = Path.Combine(ModPath, metadata.thumbnail);

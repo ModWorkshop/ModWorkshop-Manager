@@ -128,7 +128,8 @@ public class GamesService
 
                     if (gameDef.ModDirs != null)
                         gameObj.ModDirs.AddRange(gameDef.ModDirs);
-                    
+
+                    gameObj.LookForMods();
                     Games.Add(gameObj);
                 }
                 else

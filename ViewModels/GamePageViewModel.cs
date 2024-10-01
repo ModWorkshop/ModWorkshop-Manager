@@ -52,7 +52,6 @@ public partial class GamePageViewModel : PageViewModel
 
     public GamePageViewModel(Game game) {
         Game = game;
-        RefreshMods();
         Thumbnail = game.Thumbnail;
         ModInfo = new ModInfoViewModel();
 

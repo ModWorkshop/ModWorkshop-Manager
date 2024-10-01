@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:MWSManager.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 xmlns:labs="using:Avalonia.Labs.Panels"
+			 x:DataType="vm:SettingsPageViewModel"
+             x:Class="MWSManager.Views.SettingsPageView">
+	<Border Padding="16">
+		<labs:FlexPanel Direction="Column" AlignItems="FlexStart">
+			<StackPanel Spacing="16" VerticalAlignment="Top" Width="300">
+				<CheckBox IsChecked="{Binding Data.AutoCheckUpdates}">
+					<ToolTip.Tip>
+						Should the mod manager automatically check for updates?
+					</ToolTip.Tip>
+					Automatically check for updates
+				</CheckBox>
+				<StackPanel Spacing="4">
+					<ToolTip.Tip>
+						How often should the mod manager check for updates. Default being every 6 hours.		
+					</ToolTip.Tip>
+					<TextBlock>Update Recurrence (Hours)</TextBlock>
+					<NumericUpDown Minimum="1" Value="{Binding Data.AutoCheckT}"/>
+				</StackPanel>
+			</StackPanel>
+			<Panel VerticalAlignment="Bottom">
+				<TextBlock>
+					ModWorkshop Manager v0.1
+				</TextBlock>
+			</Panel>
+		</labs:FlexPanel>
+	</Border>
+</UserControl>

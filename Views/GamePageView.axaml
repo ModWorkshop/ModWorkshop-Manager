@@ -16,7 +16,7 @@
 			<TextBlock IsVisible="{Binding !HasMods}"  HorizontalAlignment="Center" VerticalAlignment="Center">No mods found!</TextBlock>
 
 			<ListBox
-				Margin="0 8"
+				Margin="0 4 0 8"
 				Classes="FluentList"
 				IsVisible="{Binding HasMods}"
 				ItemsSource="{Binding OrderedMods}"

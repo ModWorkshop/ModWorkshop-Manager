@@ -17,6 +17,8 @@ public class UpdatesService
 
     private List<Provider> Providers = [];
 
+    bool CheckingForUpdates = false;
+
     private UpdatesService() {
         RegisterProvider(new ModWorkshop());
         RegisterProvider(new ModWorkshopFile());
@@ -36,7 +38,7 @@ public class UpdatesService
 
     public void InitialCheckForUpdates()
     {
-        var t = new Thread(CheckForUpdates);
+        var t = new Thread(AutoCheckForUpdates);
         t.Start();
     }
 
@@ -79,29 +81,48 @@ public class UpdatesService
         }
     }
 
-    // Check for updates every hour or whatever we define
-    private async void CheckForUpdates()
+    private async void AutoCheckForUpdates()
     {
         while(true)
         {
-            Dictionary<string, List<ModUpdate>> providerUpdates = [];
-            foreach (var provider in Providers)
-            {
-                providerUpdates.Add(provider.Name, []);
-            }
-
-            foreach (var update in Updates) {
-                Log.Information(update.Provider);
-                providerUpdates[update.Provider]?.Add(update);
-            }
-
-            foreach (var provider in Providers)
-            {
-                await provider.CheckMultipleUpdates(providerUpdates[provider.Name]);
-            }
-
-            //Thread.Sleep(60 * 60 * 1000); // Sleep for an hour
-            Thread.Sleep(5 * 1000);
+            await CheckForUpdates();
+            Thread.Sleep(SettingsService.Data.AutoCheckT * 60 * 60 * 1000); // Default 6 hours
         }
+    }
+
+    /// <summary>
+    /// Initiates a check for updates. Will not check if a check is in progress
+    /// </summary>
+    public async Task CheckForUpdates()
+    {
+        if (CheckingForUpdates)
+        {
+            Log.Warning("Already checking for updates!");
+            return;
+        }
+
+        Log.Information("Checking for updates...");
+
+        CheckingForUpdates = true;
+        Dictionary<string, List<ModUpdate>> providerUpdates = [];
+        foreach (var provider in Providers)
+        {
+            providerUpdates.Add(provider.Name, []);
+        }
+
+        foreach (var update in Updates)
+        {
+            Log.Information(update.Provider);
+            providerUpdates[update.Provider]?.Add(update);
+        }
+
+        foreach (var provider in Providers)
+        {
+            await provider.CheckMultipleUpdates(providerUpdates[provider.Name]);
+        }
+
+        Log.Information("Checking for updates...Done");
+
+        CheckingForUpdates = false;
     }
 }

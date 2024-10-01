@@ -65,7 +65,7 @@ public partial class ModUpdate : ReactiveObject
         Id = id;
         Version = version;
 
-        this.WhenAnyValue(x => x.downloadProgress)
+        this.WhenAnyValue(x => x.DownloadProgress)
             .Select(x => x == 1)
             .Subscribe(doneDownloading =>
             {
@@ -80,12 +80,12 @@ public partial class ModUpdate : ReactiveObject
     {
         Log.Information("Received next version! {0}", version);
         NextVersion = version;
-        status = ModUpdateStatus.Waiting;
+        Status = ModUpdateStatus.Waiting;
     }
 
     public void DownloadAndInstallUpdate()
     {
-        status = ModUpdateStatus.Downloading;
+        Status = ModUpdateStatus.Downloading;
         UpdatesService updates = UpdatesService.Instance;
         updates.DownloadAndInstall(this);
     }

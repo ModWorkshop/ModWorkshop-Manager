@@ -21,7 +21,7 @@ public partial class ModUpdateViewModel : ViewModelBase
     private ModUpdate update;
 
     [ObservableAsProperty]
-    public double downloadPercent;
+    private double downloadPercent;
 
     private IObservable<bool> canExecuteDownloadUpdate;
 

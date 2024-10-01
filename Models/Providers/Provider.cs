@@ -113,6 +113,8 @@ public class Provider
 
                 update.DownloadProgress = ((double)totalBytesRead / totalBytes);
             }
+
+            update.DownloadProgress = 1;
             memStream.Position = 0;
 
             Log.Information("Done downloading, installing..");

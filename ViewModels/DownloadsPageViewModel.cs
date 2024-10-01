@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace MWSManager.ViewModels;
 
@@ -17,6 +19,9 @@ public partial class DownloadsPageViewModel : PageViewModel
     public ObservableCollection<ModUpdateViewModel> Updates { get; } = [];
 
     public MainWindowViewModel? Window { get; set; }
+
+    [Reactive]
+    private bool checkingUpdates = false;
 
     [ObservableAsProperty]
     public bool hasUpdates = false;
@@ -34,7 +39,8 @@ public partial class DownloadsPageViewModel : PageViewModel
         updatesService.Updates.ToObservableChangeSet()
             .AutoRefresh(x => x.FreshInstall)
             .AutoRefresh(x => x.NextVersion)
-            .Subscribe(RegUpdates => {
+            .Subscribe(RegUpdates =>
+            {
                 foreach (var update in updatesService.Updates)
                 {
                     if (!update.FreshInstall && update.NextVersion == null)
@@ -52,18 +58,31 @@ public partial class DownloadsPageViewModel : PageViewModel
                 }
 
                 // Remove updates that no longer exist
-                foreach (var muvm in Updates)
+                foreach (var muvm in Updates.ToList())
                 {
-                    var foundOrInstall = muvm.Update.FreshInstall;
+                    if (muvm.Update.DownloadProgress == 1 || muvm.Update.FreshInstall)
+                    {
+                        continue; // Ignore downloaded or install ones
+                    }
+
+                    var found = muvm.Update.FreshInstall;
                     foreach (var update in updatesService.Updates)
                     {
                         if (update == muvm.Update)
-                            foundOrInstall = true;
+                            found = true;
                     }
 
-                    if (!foundOrInstall)
+                    if (!found)
                         Updates.Remove(muvm);
                 }
-        });
+            });
+    }
+
+    [ReactiveCommand(CanExecute = nameof(CheckingUpdates))]
+    private async Task CheckUpdates()
+    {
+        CheckingUpdates = true; 
+        await UpdatesService.Instance.CheckForUpdates();
+        CheckingUpdates = false;
     }
 }

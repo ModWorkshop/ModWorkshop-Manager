@@ -6,6 +6,7 @@
 			 xmlns:views="using:MWSManager.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 x:DataType="vm:DownloadsPageViewModel"
+			 xmlns:i="https://github.com/projektanker/icons.avalonia" 
              x:Class="MWSManager.Views.DownloadsPageView">
 
 	<UserControl.Styles>
@@ -15,18 +16,36 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Panel HorizontalAlignment="Left">
+	<Border Padding="16">
+		<Panel>
+			<ListBox Classes="FluentList ModUpdates" ItemsSource="{Binding Updates}">
+				<ListBox.ItemsPanel>
+					<ItemsPanelTemplate>
+						<WrapPanel Orientation="Horizontal"/>
+					</ItemsPanelTemplate>
+				</ListBox.ItemsPanel>
+			</ListBox>
 
-		<ListBox Classes="FluentList ModUpdates" ItemsSource="{Binding Updates}">
-			<ListBox.ItemsPanel>
-				<ItemsPanelTemplate>
-					<WrapPanel Orientation="Horizontal"/>
-				</ItemsPanelTemplate>
-			</ListBox.ItemsPanel>
-		</ListBox>
-		
-		<Border Padding="16" IsVisible="{Binding !HasUpdates}">
-			<TextBlock HorizontalAlignment="Center" Text="No updates or downloads currently active."/>
-		</Border>
-	</Panel>
+			<Panel VerticalAlignment="Top">
+				<TextBlock 
+					Text="No updates or downloads currently active."
+					IsVisible="{Binding !HasUpdates}"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					FontWeight="Bold"
+					FontSize="20"
+				/>
+				<Button
+					HorizontalAlignment="Right"
+					FontSize="24"
+					Command="{Binding CheckUpdatesCommand}"
+				>
+					<Panel>
+						<i:Icon Value="mdi-sync" IsVisible="{Binding !CheckingUpdates}"/>
+						<i:Icon Value="mdi-loading" IsVisible="{Binding CheckingUpdates}" Animation="Spin"/>
+					</Panel>
+				</Button>
+			</Panel>
+		</Panel>
+	</Border>
 </UserControl>
